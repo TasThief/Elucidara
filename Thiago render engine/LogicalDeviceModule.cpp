@@ -32,6 +32,8 @@ LogicalDeviceModule::~LogicalDeviceModule()
 
 void LogicalDeviceModule::InitializeLogicalDevice()
 {
+	device.New( vkDestroyDevice );
+
 	SetComandQueues();
 
 	vector<VkDeviceQueueCreateInfo> queueInfo{};

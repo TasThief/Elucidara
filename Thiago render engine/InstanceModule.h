@@ -5,7 +5,7 @@ class Hub;
 class InstanceModule
 {
 public:
-	VkDeleter<VkInstance> instance { vkDestroyInstance };
+	VkDeleter<VkInstance> instance;// { vkDestroyInstance };
 	InstanceModule();
 	void InitializeInstance();
 	~InstanceModule();

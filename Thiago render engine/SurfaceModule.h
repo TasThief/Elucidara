@@ -18,7 +18,6 @@ public:
 	void InitializeWindow();
 	void InitializeSurface();
 
-	VkDeleter<VkSurfaceKHR> surface; // { Hub::s->instance->instance, vkDestroySurfaceKHR };
-
+	VkDeleter<VkSurfaceKHR> surface;
 };
 

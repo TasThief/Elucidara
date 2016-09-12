@@ -6,21 +6,20 @@ using namespace std;
 template <typename T>
 class VkDeleter {
 public:
-	VkDeleter() : VkDeleter([](T, VkAllocationCallbacks*) {}) {}
 
-	VkDeleter( function<void(T, VkAllocationCallbacks*)> deletef) {
+	VkDeleter() {}
+
+	void New(function<void(T, VkAllocationCallbacks*)> deletef) {
 		this->deleter = [=](T obj) { deletef(obj, nullptr); };
 	}
 
-	VkDeleter(const VkDeleter<VkInstance>& instance,  function<void(VkInstance, T, VkAllocationCallbacks*)> deletef) {
+	void New(const VkDeleter<VkInstance>& instance, function<void(VkInstance, T, VkAllocationCallbacks*)> deletef) {
 		this->deleter = [&instance, deletef](T obj) { deletef(instance, obj, nullptr); };
 	}
 
-	VkDeleter(const VkDeleter<VkDevice>& device,  function<void(VkDevice, T, VkAllocationCallbacks*)> deletef) {
+	void New(const VkDeleter<VkDevice>& device, function<void(VkDevice, T, VkAllocationCallbacks*)> deletef) {
 		this->deleter = [&device, deletef](T obj) { deletef(device, obj, nullptr); };
 	}
-	
-
 
 	~VkDeleter() {
 		cleanup();

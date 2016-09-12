@@ -25,7 +25,7 @@ public:
 	ComandQueue  memoryqueue;
 
 	void SetComandQueues();
-	VkDeleter<VkDevice> device{ vkDestroyDevice };
+	VkDeleter<VkDevice> device;// { vkDestroyDevice };
 	LogicalDeviceModule();
 	~LogicalDeviceModule();
 	void InitializeLogicalDevice();

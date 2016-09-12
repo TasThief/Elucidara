@@ -64,6 +64,7 @@ InstanceModule::InstanceModule(){
 
 void InstanceModule::InitializeInstance()
 {
+	instance.New( vkDestroyInstance );
 	VkInstanceCreateInfo info = GenerateVkInstanceInfoBlock();
 	info.pApplicationInfo = &GenerateApplicationInfoBlock();
 

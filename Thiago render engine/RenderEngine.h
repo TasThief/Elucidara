@@ -27,8 +27,8 @@ class LogicalDeviceModule;
 class Hub
 {
 public:
-	Deleter<ValidationLayerModule> validationLayers;
 	Deleter<SurfaceModule> surface;
+	Deleter<ValidationLayerModule> validationLayers;
 	Deleter<InstanceModule> instance;
 	Deleter<PhysicalDeviceModule> physicalDevice;
 	Deleter<LogicalDeviceModule> logicalDevice;

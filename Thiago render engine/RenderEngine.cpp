@@ -23,7 +23,7 @@ bool Hub::AreValidationLayersEnabled(){
 }
 
 bool Hub::IsWindowOpen() {
-	return surface->IsOpen();
+	return surface->IsOpen();	
 }
 
 void Hub::ExecuteWindowEvents() {
