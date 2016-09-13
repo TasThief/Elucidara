@@ -2,26 +2,27 @@
 
 bool PhysicalDeviceModule::IsDeviceSuitable(VkPhysicalDevice device) {
 
-	bool result = true;
 	FindQueueFamilies(device);
+	Hub::s->swapChain->InitializeSwapChain(&device, &Hub::s->surface);
 
-	if (graphicsFamilyIndex < 0 || presentFamilyIndex < 0 || computeFamilyIndex < 0)
-	{
-		graphicsFamilyIndex = -1;
-		presentFamilyIndex = -1;
-		computeFamilyIndex = -1;
-		result = false;
-	}
+	//check if have the families
+	if ((graphicsFamilyIndex > -1 && presentFamilyIndex > -1 && computeFamilyIndex > -1) &&
+		//check if the device suport the right extentions
+		CheckDeviceExtensionSupport(device) &&
+		//check if the device supports the swapchain
+		Hub::s->swapChain->IsAdequate())
+		return true;
+	else
+		ResetFamilyIndex();
 
-	if (result)
-	{
-		cout << "Graphics, presentation and compute queue families found" << endl;
-		result = CheckDeviceExtensionSupport(device);
-	}
-
-	return result;
+	return false;
 }
-
+void PhysicalDeviceModule::ResetFamilyIndex()
+{
+	graphicsFamilyIndex = -1;
+	presentFamilyIndex = -1;
+	computeFamilyIndex = -1;
+}
 bool PhysicalDeviceModule::CheckDeviceExtensionSupport(const VkPhysicalDevice device)
 {
 	//how much extensions i'll have

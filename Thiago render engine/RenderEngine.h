@@ -16,6 +16,7 @@
 #include "ValidationLayerModule.h"
 #include "PhysicalDeviceModule.h"
 #include "LogicalDeviceModule.h"
+#include "SwapChainModule.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ class SurfaceModule;
 class InstanceModule;
 class PhysicalDeviceModule;
 class LogicalDeviceModule;
+class SwapChainModule;
 
 class Hub
 {
@@ -34,6 +36,7 @@ public:
 	Deleter<PhysicalDeviceModule> physicalDevice;
 	Deleter<LogicalDeviceModule> logicalDevice;
 	Deleter<SurfaceModule> surface;
+	Deleter<SwapChainModule> swapChain;
 
 	static Hub* Hub::s;
 	VkInstance* GetInstance();

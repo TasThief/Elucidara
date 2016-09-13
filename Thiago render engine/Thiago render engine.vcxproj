@@ -155,6 +155,7 @@
     <ClCompile Include="PhysicalDeviceModule.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="SurfaceModule.cpp" />
+    <ClCompile Include="SwapChainModule.cpp" />
     <ClCompile Include="ValidationLayerModule.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="PhysicalDeviceModule.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="SurfaceModule.h" />
+    <ClInclude Include="SwapChainModule.h" />
     <ClInclude Include="ValidationLayerModule.h" />
     <ClInclude Include="VkDeleter.h" />
   </ItemGroup>

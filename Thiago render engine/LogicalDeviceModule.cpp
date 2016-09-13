@@ -36,7 +36,8 @@ void LogicalDeviceModule::InitializeLogicalDevice(PhysicalDeviceModule* physical
 	createInfo.pQueueCreateInfos = queueInfo.data();
 	createInfo.queueCreateInfoCount = 1;
 	createInfo.pEnabledFeatures = &physicalDeviceModuleRef->deviceFeatures;
-
+	createInfo.enabledExtensionCount = physicalDeviceModuleRef->deviceExtensions.size();
+	createInfo.ppEnabledExtensionNames = physicalDeviceModuleRef->deviceExtensions.data();
 	//create the virtual device info
 	if (vkCreateDevice(physicalDeviceModuleRef->physicalDevice, &createInfo, nullptr, device.Reset()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create logical device!");
