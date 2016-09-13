@@ -9,16 +9,16 @@ public:
 
 	VkDeleter() {}
 
-	void New(function<void(T, VkAllocationCallbacks*)> deletef) {
-		this->deleter = [=](T obj) { deletef(obj, nullptr); };
-	}
-
-	void New(const VkDeleter<VkInstance>& instance, function<void(VkInstance, T, VkAllocationCallbacks*)> deletef) {
+	void New(const VkInstance& instance, function<void(VkInstance, T, VkAllocationCallbacks*)> deletef) {
 		this->deleter = [&instance, deletef](T obj) { deletef(instance, obj, nullptr); };
 	}
 
-	void New(const VkDeleter<VkDevice>& device, function<void(VkDevice, T, VkAllocationCallbacks*)> deletef) {
+	void New(const VkDevice& device, function<void(VkDevice, T, VkAllocationCallbacks*)> deletef) {
 		this->deleter = [&device, deletef](T obj) { deletef(device, obj, nullptr); };
+	}
+
+	void New(function<void(T, VkAllocationCallbacks*)> deletef) {
+		this->deleter = [=](T obj) { deletef(obj, nullptr); };
 	}
 
 	~VkDeleter() {

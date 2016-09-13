@@ -8,6 +8,7 @@ public:
 	const int WIDTH = 800;
 	const int HEIGHT = 600;
 
+
 	GLFWwindow* window;
 
 	SurfaceModule();
@@ -16,7 +17,7 @@ public:
 	bool IsOpen();
 	void ExecuteEvents();
 	void InitializeWindow();
-	void InitializeSurface();
+	void InitializeSurface(VkInstance* instance);
 
 	VkDeleter<VkSurfaceKHR> surface;
 };

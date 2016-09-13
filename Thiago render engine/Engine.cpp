@@ -5,6 +5,7 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
+
 	delete Hub::s;
 }
 

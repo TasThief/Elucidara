@@ -5,7 +5,6 @@ bool PhysicalDeviceModule::IsDeviceSuitable(VkPhysicalDevice device) {
 	bool result = true;
 	FindQueueFamilies(device);
 
-
 	if (graphicsFamilyIndex < 0 || presentFamilyIndex < 0 || computeFamilyIndex < 0)
 	{
 		graphicsFamilyIndex = -1;
@@ -14,10 +13,43 @@ bool PhysicalDeviceModule::IsDeviceSuitable(VkPhysicalDevice device) {
 		result = false;
 	}
 
-	if(result)
+	if (result)
+	{
 		cout << "Graphics, presentation and compute queue families found" << endl;
+		result = CheckDeviceExtensionSupport(device);
+	}
 
 	return result;
+}
+
+bool PhysicalDeviceModule::CheckDeviceExtensionSupport(const VkPhysicalDevice device)
+{
+	//how much extensions i'll have
+	uint32_t extensionCount;
+
+	//get that number
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+	//initialize a list with extension properties
+	vector<VkExtensionProperties> availableExtensions(extensionCount);
+
+	//save its data
+	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+	//clone a list of required extensions
+	set<string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+	cout << endl << "Available extensions" << endl;
+	for (const auto& extension : availableExtensions)
+		cout << extension.extensionName << endl;
+	cout << endl;
+
+	//checklist if this device has those extensions
+	for (const auto& extension : availableExtensions)
+		requiredExtensions.erase(extension.extensionName);
+	
+	//return if there are no item left
+	return requiredExtensions.empty();
 }
 
 vector<VkPhysicalDevice> PhysicalDeviceModule::GetDeviceList()

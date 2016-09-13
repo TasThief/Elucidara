@@ -1,6 +1,8 @@
 #pragma once
 #include "RenderEngine.h"
-class Hub;
+
+class LogicalDeviceModule;
+class PhysicalDeviceModule;
 
 class ComandQueue
 {
@@ -12,8 +14,13 @@ public:
 
 	VkDeviceQueueCreateInfo creationInfo;
 
+	LogicalDeviceModule* logicalDeviceModuleRef = nullptr;
+
 	void SetCreationInfo();
 	void SetHandler();
+
+	void InitializeHandler(LogicalDeviceModule * moduleRef, uint32_t queueCount, float priority, uint32_t index);
+
 };
 
 class LogicalDeviceModule
@@ -24,11 +31,13 @@ public:
 	ComandQueue	 computeQueue;
 	ComandQueue  memoryqueue;
 
-	void SetComandQueues();
-	VkDeleter<VkDevice> device;// { vkDestroyDevice };
+	PhysicalDeviceModule* physicalDeviceModuleRef = nullptr;
+
+	VkDeleter<VkDevice> device;
+
 	LogicalDeviceModule();
 	~LogicalDeviceModule();
-	void InitializeLogicalDevice();
+	void InitializeLogicalDevice(PhysicalDeviceModule* physicalDevice);
 
 };
 

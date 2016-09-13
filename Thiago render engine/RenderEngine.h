@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <set>
 
 #include "Deleter.h"
 #include "VkDeleter.h"
@@ -26,12 +27,13 @@ class LogicalDeviceModule;
 
 class Hub
 {
+
 public:
-	Deleter<SurfaceModule> surface;
 	Deleter<ValidationLayerModule> validationLayers;
 	Deleter<InstanceModule> instance;
 	Deleter<PhysicalDeviceModule> physicalDevice;
 	Deleter<LogicalDeviceModule> logicalDevice;
+	Deleter<SurfaceModule> surface;
 
 	static Hub* Hub::s;
 	VkInstance* GetInstance();
@@ -45,5 +47,6 @@ public:
 
 	Hub();
 	~Hub();
+
 };
 

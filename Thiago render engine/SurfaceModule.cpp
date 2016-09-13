@@ -3,8 +3,7 @@
 SurfaceModule::SurfaceModule(){
 }
 	
-void SurfaceModule::InitializeWindow()
-{
+void SurfaceModule::InitializeWindow(){
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -24,10 +23,9 @@ void SurfaceModule::ExecuteEvents(){
 	glfwPollEvents();
 }
 
-void SurfaceModule::InitializeSurface()
-{
-	surface.New( Hub::s->instance->instance, vkDestroySurfaceKHR );
-	if (glfwCreateWindowSurface(Hub::s->instance->instance, window, nullptr, &surface) != VK_SUCCESS) {
+void SurfaceModule::InitializeSurface(VkInstance* instance){
+	surface.New( *instance, vkDestroySurfaceKHR );
+	if (glfwCreateWindowSurface(*instance, window, nullptr, &surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create window surface!");
 	}
 

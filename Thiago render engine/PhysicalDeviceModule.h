@@ -5,6 +5,10 @@ class Hub;
 class PhysicalDeviceModule
 {
 public:
+	const vector<const char*> deviceExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
+
 	int graphicsFamilyIndex = -1;
 	int  presentFamilyIndex = -1;
 	int  computeFamilyIndex = -1;
@@ -20,6 +24,8 @@ public:
 	~PhysicalDeviceModule();
 
 	bool IsDeviceSuitable(VkPhysicalDevice device);
+
+	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
 	vector<VkPhysicalDevice> GetDeviceList();
 

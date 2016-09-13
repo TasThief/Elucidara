@@ -35,9 +35,9 @@ Hub::Hub() {
 
 	surface->InitializeWindow();
 	instance->InitializeInstance();
-	surface->InitializeSurface();
+	surface->InitializeSurface(&instance->instance);
 	physicalDevice->InitializePhysicalDevice();
-	logicalDevice->InitializeLogicalDevice();
+	logicalDevice->InitializeLogicalDevice(&physicalDevice);
 }
 
 Hub::~Hub() {
