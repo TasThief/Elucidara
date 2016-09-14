@@ -12,6 +12,7 @@ public:
 
 	VkDeleter<VkSwapchainKHR> swapChain;
 	vector<VkImage> swapChainImages;
+	vector<VkDeleter<VkImageView>> swapChainImageViews;
 
 	VkSurfaceCapabilitiesKHR capabilities;
 	vector<VkSurfaceFormatKHR> formats;
@@ -24,6 +25,7 @@ public:
 	PhysicalDeviceModule* physicalDeviceModuleRef = nullptr;
 	SurfaceModule* surfaceModuleRef = nullptr;
 
+	void CreateImageViews(VkDevice* device);
 	void CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* logicalDeviceModule);
 	bool IsAdequate();
 	void QueryForSwapChainSupport(VkPhysicalDevice* device);

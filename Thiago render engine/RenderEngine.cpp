@@ -43,6 +43,7 @@ Hub::Hub() {
 	physicalDevice = new PhysicalDeviceModule(swapChain, surface);
 	logicalDevice = new LogicalDeviceModule(physicalDevice);
 	swapChain->CreateSwapChain(physicalDevice, &logicalDevice->device);
+	swapChain->CreateImageViews(&logicalDevice->device);
 }
 
 Hub::~Hub() {

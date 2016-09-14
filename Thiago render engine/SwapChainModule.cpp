@@ -1,5 +1,48 @@
 #include "SwapChainModule.h"
 
+void SwapChainModule::CreateImageViews(VkDevice* device)
+{
+	swapChainImageViews.resize(swapChainImages.size());
+	for (uint32_t i = 0; i < swapChainImages.size(); i++) {
+		swapChainImageViews[i].New(*device, vkDestroyImageView);
+		
+		VkImageViewCreateInfo createInfo = {};
+		//type of struct
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	//	createInfo.pNext;
+	//	createInfo.flags;
+		//image i am creating
+		createInfo.image = swapChainImages[i];
+		//type of texture 1d 2d 3d or cubemaps
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+
+		createInfo.format = format.format;
+
+		//how the color channels are working
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+		//image information, depth, mipmaps....
+		//rgb color
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.baseMipLevel = 1;
+		createInfo.subresourceRange.layerCount = 0;
+		createInfo.subresourceRange.levelCount = 1;
+
+		//create the image view
+		if (vkCreateImageView(*device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+			throw runtime_error("failed to create image views");
+
+		cout << i << " image view created" << endl;
+	}
+//	for (auto& imageView : swapChainImageViews)
+//		imageView.New(*device, vkDestroyImageView);
+
+}
+
 void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* device)
 {
 	/*
@@ -117,8 +160,12 @@ VkPresentModeKHR SwapChainModule::ChooseSwapPresentMode()
 	//if mailbox is available used
 	for (const auto& presentMode : presentModes)
 		if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
+			cout << "swap chain mode = Mailbox" << endl;
 			return presentMode;
+		}
 
+	cout << "swap chain mode = Fifo" << endl;
 	//if not use fifo
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
