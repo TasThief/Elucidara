@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cstring>
 #include <set>
+#include <algorithm>
 
 #include "Deleter.h"
 #include "VkDeleter.h"
@@ -32,11 +33,11 @@ class Hub
 
 public:
 	Deleter<ValidationLayerModule> validationLayers;
-	Deleter<InstanceModule> instance;
-	Deleter<PhysicalDeviceModule> physicalDevice;
+	Deleter<SwapChainModule> swapChain;
 	Deleter<LogicalDeviceModule> logicalDevice;
 	Deleter<SurfaceModule> surface;
-	Deleter<SwapChainModule> swapChain;
+	Deleter<PhysicalDeviceModule> physicalDevice;
+	Deleter<InstanceModule> instance;
 
 	static Hub* Hub::s;
 	VkInstance* GetInstance();

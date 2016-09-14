@@ -1,22 +1,21 @@
 #include "PhysicalDeviceModule.h"
 
-bool PhysicalDeviceModule::IsDeviceSuitable(VkPhysicalDevice device) {
+bool PhysicalDeviceModule::IsDeviceSuitable(VkPhysicalDevice device,SwapChainModule* swapChain,SurfaceModule* surface) {
 
 	FindQueueFamilies(device);
-	Hub::s->swapChain->InitializeSwapChain(&device, &Hub::s->surface);
+
+	swapChain->QueryForSwapChainSupport(&device);
 
 	//check if have the families
-	if ((graphicsFamilyIndex > -1 && presentFamilyIndex > -1 && computeFamilyIndex > -1) &&
-		//check if the device suport the right extentions
-		CheckDeviceExtensionSupport(device) &&
-		//check if the device supports the swapchain
-		Hub::s->swapChain->IsAdequate())
+	if ((graphicsFamilyIndex > -1 && presentFamilyIndex > -1 && computeFamilyIndex > -1)&&
+		(CheckDeviceExtensionSupport(device)) &&
+		(swapChain->IsAdequate()))
 		return true;
 	else
 		ResetFamilyIndex();
 
 	return false;
-}
+} 
 void PhysicalDeviceModule::ResetFamilyIndex()
 {
 	graphicsFamilyIndex = -1;
@@ -48,9 +47,9 @@ bool PhysicalDeviceModule::CheckDeviceExtensionSupport(const VkPhysicalDevice de
 	//checklist if this device has those extensions
 	for (const auto& extension : availableExtensions)
 		requiredExtensions.erase(extension.extensionName);
-	
+	bool result = requiredExtensions.empty();
 	//return if there are no item left
-	return requiredExtensions.empty();
+	return result;
 }
 
 vector<VkPhysicalDevice> PhysicalDeviceModule::GetDeviceList()
@@ -75,10 +74,10 @@ vector<VkPhysicalDevice> PhysicalDeviceModule::GetDeviceList()
 	return devices;
 }
 
-void PhysicalDeviceModule::InitializePhysicalDevice()
+void PhysicalDeviceModule::InitializePhysicalDevice(SwapChainModule* swapChain, SurfaceModule* surface)
 {
 	for (const auto& device : GetDeviceList()) {
-		if (IsDeviceSuitable(device)) {
+		if (IsDeviceSuitable(device, swapChain, surface)) {
 			physicalDevice = device;
 			break;
 		}

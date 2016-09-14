@@ -1,13 +1,84 @@
 #include "SwapChainModule.h"
 
 
-void SwapChainModule::InitializeSwapChain(VkPhysicalDevice* device, SurfaceModule * surface)
-{
-	//physicalDeviceModuleRef = physicalDeviceModule;
+void SwapChainModule::InitializeSwapChain(SurfaceModule * surface){
 	surfaceModuleRef = surface;
+}
 
+
+void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* logicalDeviceModule)
+{
+	/*
+	If i want to make elucidara's main purpose to happen here lies one of the major
+	implementations.. i just discovered that i can allow alpha pixels to be blended
+	by other surfaces (on composite alpha information) if i wanted to create a engine
+	that mimics a canvas beeing painted i would need to create 2 swap chains, one for
+	the canvas and other for the content, the canvas has alpha pixels and these pixels
+	should be blended to the other swapchain, so probably i would need to have 2 
+	swapchains that drop imagens on the same screen... it might be possible
+	*/
+	swapChain.New(*logicalDeviceModule, vkDestroySwapchainKHR);
+
+	format = ChooseSwapSurfaceFormat();
+	presentMode = ChooseSwapPresentMode();
+	extent = ChooseSwapExtent();
+
+	uint32_t imageCount = capabilities.minImageCount + 1;
+	if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
+		imageCount = capabilities.maxImageCount;
+	}
+	
+	VkSwapchainCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+//	createInfo.pNext;
+//	createInfo.flags;
+	createInfo.surface = surfaceModuleRef->surface;
+	createInfo.minImageCount = imageCount;
+	createInfo.imageFormat = format.format;
+	createInfo.imageColorSpace = format.colorSpace;
+	createInfo.imageExtent = extent;
+	//2 for [VR] number of images 2 to create a stereo image set!!!
+	createInfo.imageArrayLayers = 1;
+
+	//if i want to use post processing stuff use this tag VK_IMAGE_USAGE_TRANSFER_DST_BIT
+	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+	
+	uint32_t queueFamilyIndices[] = { 
+		(uint32_t)physicalDeviceModuleRef->graphicsFamilyIndex, 
+		(uint32_t)physicalDeviceModuleRef->presentFamilyIndex };
+
+	//An image is owned by one queue family at a time and ownership must be explicitly transfered before using it in another queue family. This option offers the best performance.
+	createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	createInfo.queueFamilyIndexCount = 0;
+	createInfo.pQueueFamilyIndices = nullptr;
+
+	if (queueFamilyIndices[0] != queueFamilyIndices[1]) {
+		//Images can be used across multiple queue families without explicit ownership transfers.
+		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		createInfo.queueFamilyIndexCount = 2;
+		createInfo.pQueueFamilyIndices = queueFamilyIndices;
+	}
+	//if thre are some transformations in the images (like rotation), might be usefull to deal with screen rescale
+	createInfo.preTransform = capabilities.currentTransform;
+
+	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	createInfo.presentMode = presentMode;
+	createInfo.clipped = VK_TRUE;
+	createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+	if (vkCreateSwapchainKHR(*logicalDeviceModule, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+		throw runtime_error("Failed to create swapchain");
+
+}
+
+bool SwapChainModule::IsAdequate()
+{
+	return !formats.empty() && !presentModes.empty();
+}
+
+void SwapChainModule::QueryForSwapChainSupport(VkPhysicalDevice* device)
+{
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(*device, surfaceModuleRef->surface, &capabilities);
-
 
 	uint32_t formatCount;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(*device, surfaceModuleRef->surface, &formatCount, nullptr);
@@ -27,13 +98,44 @@ void SwapChainModule::InitializeSwapChain(VkPhysicalDevice* device, SurfaceModul
 	}
 }
 
-bool SwapChainModule::IsAdequate()
+VkSurfaceFormatKHR SwapChainModule::ChooseSwapSurfaceFormat()
 {
-	return !formats.empty() && !presentModes.empty();
+	//if its undefined, define it the way i want
+	if (formats.size() == 1 && formats[0].format == VK_FORMAT_UNDEFINED)
+		return{ VK_FORMAT_B10G11R11_UFLOAT_PACK32, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+
+	//if its defined search from all of them the one i want
+	for (const auto& format : formats)
+		if (format.format == VK_FORMAT_B8G8R8A8_UNORM && format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			return format;
+
+	//if i could no find something i want go with anything available
+	return formats[0];
 }
 
-void SwapChainModule::QueryForSwapChainSupport(VkPhysicalDevice device)
+VkPresentModeKHR SwapChainModule::ChooseSwapPresentMode()
 {
+	for (const auto& presentMode : presentModes)
+		if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+			return presentMode;
+
+	return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D SwapChainModule::ChooseSwapExtent()
+{
+	//??
+	if (capabilities.currentExtent.width != numeric_limits<uint32_t>::max())
+		return capabilities.currentExtent;
+	else {
+		VkExtent2D actualExtent = { surfaceModuleRef->WIDTH, surfaceModuleRef->HEIGHT };
+
+		//??
+		actualExtent.width = max(capabilities.minImageExtent.width, min(capabilities.maxImageExtent.width, actualExtent.width));
+		actualExtent.height = max(capabilities.minImageExtent.height, min(capabilities.maxImageExtent.height, actualExtent.height));
+
+		return actualExtent;
+	}
 }
 
 SwapChainModule::SwapChainModule()

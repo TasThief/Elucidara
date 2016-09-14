@@ -1,7 +1,8 @@
 #pragma once
 #include "RenderEngine.h"
 class Hub;
-
+class SwapChainModule;
+class SurfaceModule;
 class PhysicalDeviceModule
 {
 public:
@@ -23,13 +24,15 @@ public:
 
 	~PhysicalDeviceModule();
 
-	bool IsDeviceSuitable(VkPhysicalDevice device);
+	bool IsDeviceSuitable(VkPhysicalDevice device, SwapChainModule* swapChain, SurfaceModule* surface);
+
+	void ResetFamilyIndex();
 
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
 	vector<VkPhysicalDevice> GetDeviceList();
 
-	void InitializePhysicalDevice();
+	void InitializePhysicalDevice(SwapChainModule* swapChain, SurfaceModule* surface);
 
 	void FindQueueFamilies(VkPhysicalDevice device);
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <functional>
+#include<cstdlib>
+
 using namespace std;
 
 template <typename T>
@@ -20,8 +22,9 @@ public:
 	void New(function<void(T, VkAllocationCallbacks*)> deletef) {
 		this->deleter = [=](T obj) { deletef(obj, nullptr); };
 	}
-
+	
 	~VkDeleter() {
+		cout << object <<endl;
 		cleanup();
 	}
 

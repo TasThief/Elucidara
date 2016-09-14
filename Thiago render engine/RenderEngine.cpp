@@ -36,8 +36,10 @@ Hub::Hub() {
 	surface->InitializeWindow();
 	instance->InitializeInstance();
 	surface->InitializeSurface(&instance->instance);
-	physicalDevice->InitializePhysicalDevice();
+	swapChain->InitializeSwapChain(&surface);
+	physicalDevice->InitializePhysicalDevice(&swapChain,&surface);
 	logicalDevice->InitializeLogicalDevice(&physicalDevice);
+	swapChain->CreateSwapChain(&physicalDevice, &logicalDevice->device);
 }
 
 Hub::~Hub() {
