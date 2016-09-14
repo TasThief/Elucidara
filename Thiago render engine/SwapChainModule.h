@@ -30,7 +30,7 @@ public:
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat();
 	VkPresentModeKHR ChooseSwapPresentMode();
 	VkExtent2D ChooseSwapExtent();
-	SwapChainModule();
+	SwapChainModule(SurfaceModule * surface);
 	~SwapChainModule();
 };
 

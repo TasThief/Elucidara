@@ -32,12 +32,12 @@ class Hub
 {
 
 public:
-	Deleter<ValidationLayerModule> validationLayers;
-	Deleter<SwapChainModule> swapChain;
-	Deleter<LogicalDeviceModule> logicalDevice;
-	Deleter<SurfaceModule> surface;
-	Deleter<PhysicalDeviceModule> physicalDevice;
-	Deleter<InstanceModule> instance;
+	ValidationLayerModule* validationLayers;
+	SwapChainModule* swapChain;
+	LogicalDeviceModule* logicalDevice;
+	SurfaceModule* surface;
+	PhysicalDeviceModule* physicalDevice;
+	InstanceModule* instance;
 
 	static Hub* Hub::s;
 	VkInstance* GetInstance();

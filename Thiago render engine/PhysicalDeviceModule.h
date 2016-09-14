@@ -20,7 +20,7 @@ public:
 
 	VkPhysicalDeviceFeatures deviceFeatures;
 
-	PhysicalDeviceModule();
+	PhysicalDeviceModule(SwapChainModule* swapChain, SurfaceModule* surface);
 
 	~PhysicalDeviceModule();
 

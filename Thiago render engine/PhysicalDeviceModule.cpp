@@ -74,26 +74,6 @@ vector<VkPhysicalDevice> PhysicalDeviceModule::GetDeviceList()
 	return devices;
 }
 
-void PhysicalDeviceModule::InitializePhysicalDevice(SwapChainModule* swapChain, SurfaceModule* surface)
-{
-	for (const auto& device : GetDeviceList()) {
-		if (IsDeviceSuitable(device, swapChain, surface)) {
-			physicalDevice = device;
-			break;
-		}
-	}
-
-	if (physicalDevice == VK_NULL_HANDLE) {
-		throw runtime_error("failed to find a suitable GPU!");
-	}
-
-	vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-	cout << "Physical device fully initialized using " <<properties.deviceName<< " as main device"<< endl;
-
-	VkPhysicalDeviceFeatures temp{};
-	deviceFeatures = temp;
-}
-
 void PhysicalDeviceModule::FindQueueFamilies(VkPhysicalDevice device)
 {
 	//family count
@@ -123,7 +103,25 @@ void PhysicalDeviceModule::FindQueueFamilies(VkPhysicalDevice device)
 }
 
 
-PhysicalDeviceModule::PhysicalDeviceModule(){}
+PhysicalDeviceModule::PhysicalDeviceModule(SwapChainModule* swapChain, SurfaceModule* surface)
+{
+	for (const auto& device : GetDeviceList()) {
+		if (IsDeviceSuitable(device, swapChain, surface)) {
+			physicalDevice = device;
+			break;
+		}
+	}
+
+	if (physicalDevice == VK_NULL_HANDLE) {
+		throw runtime_error("failed to find a suitable GPU!");
+	}
+
+	vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+	cout << "Physical device fully initialized using " << properties.deviceName << " as main device" << endl;
+
+	VkPhysicalDeviceFeatures temp{};
+	deviceFeatures = temp;
+}
 
 PhysicalDeviceModule::~PhysicalDeviceModule(){}
 

@@ -1,7 +1,6 @@
 #include "SurfaceModule.h"
 
-SurfaceModule::SurfaceModule(){
-}
+SurfaceModule::SurfaceModule() {}
 	
 void SurfaceModule::InitializeWindow(){
 	glfwInit();

@@ -35,7 +35,7 @@ public:
 
 	VkDeleter<VkDevice> device;
 
-	LogicalDeviceModule();
+	LogicalDeviceModule(PhysicalDeviceModule* physicalDevice);
 	~LogicalDeviceModule();
 	void InitializeLogicalDevice(PhysicalDeviceModule* physicalDevice);
 

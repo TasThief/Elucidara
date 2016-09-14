@@ -1,11 +1,6 @@
 #include "SwapChainModule.h"
 
 
-void SwapChainModule::InitializeSwapChain(SurfaceModule * surface){
-	surfaceModuleRef = surface;
-}
-
-
 void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* logicalDeviceModule)
 {
 	/*
@@ -138,8 +133,9 @@ VkExtent2D SwapChainModule::ChooseSwapExtent()
 	}
 }
 
-SwapChainModule::SwapChainModule()
-{
+SwapChainModule::SwapChainModule(SurfaceModule * surface) {
+	surfaceModuleRef = surface;
+
 }
 
 

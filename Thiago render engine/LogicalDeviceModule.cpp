@@ -2,22 +2,13 @@
 
 
 
-LogicalDeviceModule::LogicalDeviceModule()
-{
-}
-
-
-LogicalDeviceModule::~LogicalDeviceModule()
-{
-}
-
-void LogicalDeviceModule::InitializeLogicalDevice(PhysicalDeviceModule* physicalDevice)
+LogicalDeviceModule::LogicalDeviceModule(PhysicalDeviceModule* physicalDevice)
 {
 	//save physical device Pointer
 	physicalDeviceModuleRef = physicalDevice;
 
 	//Initialize the device obj
-	device.New( vkDestroyDevice );
+	device.New(vkDestroyDevice);
 
 	//initialize queues
 	graphicsQueue.InitializeHandler(this, 1, 1.0f, physicalDeviceModuleRef->graphicsFamilyIndex);
@@ -53,6 +44,10 @@ void LogicalDeviceModule::InitializeLogicalDevice(PhysicalDeviceModule* physical
 	graphicsQueue.SetHandler();
 	cout << "Compute queue handler created" << endl;
 
+}
+
+LogicalDeviceModule::~LogicalDeviceModule()
+{
 }
 
 void ComandQueue::SetCreationInfo()

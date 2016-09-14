@@ -60,11 +60,7 @@ VkInstanceCreateInfo InstanceModule::GenerateVkInstanceInfoBlock()
 }
 
 InstanceModule::InstanceModule(){
-}
-
-void InstanceModule::InitializeInstance()
-{
-	instance.New( vkDestroyInstance );
+	instance.New(vkDestroyInstance);
 	VkInstanceCreateInfo info = GenerateVkInstanceInfoBlock();
 	info.pApplicationInfo = &GenerateApplicationInfoBlock();
 
@@ -76,7 +72,7 @@ void InstanceModule::InitializeInstance()
 		throw  runtime_error("failed to create instance!");
 	}
 
-	 cout << "Vulkan instance created" <<  endl;
+	cout << "Vulkan instance created" << endl;
 }
 
 InstanceModule::~InstanceModule()

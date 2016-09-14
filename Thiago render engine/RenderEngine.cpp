@@ -33,15 +33,24 @@ void Hub::ExecuteWindowEvents() {
 Hub::Hub() {
 	Hub::s = this;
 
+	validationLayers = new ValidationLayerModule();
+	surface = new SurfaceModule();
+
 	surface->InitializeWindow();
-	instance->InitializeInstance();
+	instance = new InstanceModule();
 	surface->InitializeSurface(&instance->instance);
-	swapChain->InitializeSwapChain(&surface);
-	physicalDevice->InitializePhysicalDevice(&swapChain,&surface);
-	logicalDevice->InitializeLogicalDevice(&physicalDevice);
-	swapChain->CreateSwapChain(&physicalDevice, &logicalDevice->device);
+	swapChain = new SwapChainModule(surface);
+	physicalDevice = new PhysicalDeviceModule(swapChain, surface);
+	logicalDevice = new LogicalDeviceModule(physicalDevice);
+	swapChain->CreateSwapChain(physicalDevice, &logicalDevice->device);
 }
 
 Hub::~Hub() {
+	delete validationLayers;
+	delete swapChain;
+	delete logicalDevice;
+	delete surface;
+	delete physicalDevice;
+	delete instance;
 	Hub::s = nullptr;
 }
