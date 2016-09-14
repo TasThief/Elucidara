@@ -1,7 +1,6 @@
 #include "SwapChainModule.h"
 
-
-void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* logicalDeviceModule)
+void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* device)
 {
 	/*
 	If i want to make elucidara's main purpose to happen here lies one of the major
@@ -12,7 +11,7 @@ void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModule
 	should be blended to the other swapchain, so probably i would need to have 2 
 	swapchains that drop imagens on the same screen... it might be possible
 	*/
-	swapChain.New(*logicalDeviceModule, vkDestroySwapchainKHR);
+	swapChain.New(*device, vkDestroySwapchainKHR);
 
 	format = ChooseSwapSurfaceFormat();
 	presentMode = ChooseSwapPresentMode();
@@ -61,9 +60,14 @@ void SwapChainModule::CreateSwapChain(PhysicalDeviceModule* physicalDeviceModule
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-	if (vkCreateSwapchainKHR(*logicalDeviceModule, &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+	if (vkCreateSwapchainKHR(*device, &createInfo, nullptr, swapChain.Reset()) != VK_SUCCESS)
 		throw runtime_error("Failed to create swapchain");
+	cout << "Swap Chain created" << endl;
 
+	vkGetSwapchainImagesKHR(*device, swapChain, &imageCount, nullptr);
+	swapChainImages.resize(imageCount);
+	vkGetSwapchainImagesKHR(*device, swapChain, &imageCount, swapChainImages.data());
+	cout << "Swap Chain Image handlers were created" << endl;
 }
 
 bool SwapChainModule::IsAdequate()
@@ -110,10 +114,12 @@ VkSurfaceFormatKHR SwapChainModule::ChooseSwapSurfaceFormat()
 
 VkPresentModeKHR SwapChainModule::ChooseSwapPresentMode()
 {
+	//if mailbox is available used
 	for (const auto& presentMode : presentModes)
 		if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 			return presentMode;
 
+	//if not use fifo
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 

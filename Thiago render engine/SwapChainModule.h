@@ -11,6 +11,8 @@ class SwapChainModule
 public:
 
 	VkDeleter<VkSwapchainKHR> swapChain;
+	vector<VkImage> swapChainImages;
+
 	VkSurfaceCapabilitiesKHR capabilities;
 	vector<VkSurfaceFormatKHR> formats;
 	vector<VkPresentModeKHR> presentModes;
@@ -21,8 +23,6 @@ public:
 
 	PhysicalDeviceModule* physicalDeviceModuleRef = nullptr;
 	SurfaceModule* surfaceModuleRef = nullptr;
-
-	void InitializeSwapChain(SurfaceModule * surface);
 
 	void CreateSwapChain(PhysicalDeviceModule* physicalDeviceModuleRef, VkDevice* logicalDeviceModule);
 	bool IsAdequate();
