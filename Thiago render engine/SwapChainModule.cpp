@@ -161,11 +161,11 @@ VkPresentModeKHR SwapChainModule::ChooseSwapPresentMode()
 	for (const auto& presentMode : presentModes)
 		if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 		{
-			cout << "swap chain mode = Mailbox" << endl;
+			cout << "Swap chain mode = Mailbox" << endl;
 			return presentMode;
 		}
 
-	cout << "swap chain mode = Fifo" << endl;
+	cout << "Swap chain mode = Fifo" << endl;
 	//if not use fifo
 	return VK_PRESENT_MODE_FIFO_KHR;
 }

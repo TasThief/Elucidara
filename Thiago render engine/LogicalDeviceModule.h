@@ -37,7 +37,7 @@ public:
 
 	LogicalDeviceModule(PhysicalDeviceModule* physicalDevice);
 	~LogicalDeviceModule();
-	void InitializeLogicalDevice(PhysicalDeviceModule* physicalDevice);
+
 
 };
 

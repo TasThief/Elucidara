@@ -153,6 +153,7 @@
     <ClCompile Include="LogicalDeviceModule.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PhysicalDeviceModule.cpp" />
+    <ClCompile Include="PipelineModule.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="SurfaceModule.cpp" />
     <ClCompile Include="SwapChainModule.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="InstanceModule.h" />
     <ClInclude Include="LogicalDeviceModule.h" />
     <ClInclude Include="PhysicalDeviceModule.h" />
+    <ClInclude Include="PipelineModule.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="SurfaceModule.h" />
     <ClInclude Include="SwapChainModule.h" />

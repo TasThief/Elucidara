@@ -32,8 +32,6 @@ public:
 
 	vector<VkPhysicalDevice> GetDeviceList();
 
-	void InitializePhysicalDevice(SwapChainModule* swapChain, SurfaceModule* surface);
-
 	void FindQueueFamilies(VkPhysicalDevice device);
 
 	
