@@ -8,6 +8,7 @@
 #include <cstring>
 #include <set>
 #include <algorithm>
+#include <fstream>
 
 #include "Deleter.h"
 #include "VkDeleter.h"
@@ -18,6 +19,7 @@
 #include "PhysicalDeviceModule.h"
 #include "LogicalDeviceModule.h"
 #include "SwapChainModule.h"
+#include "PipelineModule.h"
 
 using namespace std;
 
@@ -27,6 +29,7 @@ class InstanceModule;
 class PhysicalDeviceModule;
 class LogicalDeviceModule;
 class SwapChainModule;
+class PipelineModule;
 
 class Hub
 {
@@ -38,6 +41,7 @@ public:
 	SurfaceModule* surface;
 	PhysicalDeviceModule* physicalDevice;
 	InstanceModule* instance;
+	PipelineModule* pipeline;
 
 	static Hub* Hub::s;
 	VkInstance* GetInstance();

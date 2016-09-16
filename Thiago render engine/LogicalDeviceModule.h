@@ -29,7 +29,6 @@ public:
 	ComandQueue graphicsQueue;
 	ComandQueue	 presentQueue;
 	ComandQueue	 computeQueue;
-	ComandQueue  memoryqueue;
 
 	PhysicalDeviceModule* physicalDeviceModuleRef = nullptr;
 

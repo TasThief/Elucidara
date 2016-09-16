@@ -12,8 +12,8 @@ LogicalDeviceModule::LogicalDeviceModule(PhysicalDeviceModule* physicalDevice)
 
 	//initialize queues
 	graphicsQueue.InitializeHandler(this, 1, 1.0f, physicalDeviceModuleRef->graphicsFamilyIndex);
-	presentQueue.InitializeHandler(this, 1, 1.0f, physicalDeviceModuleRef->presentFamilyIndex);
-	computeQueue.InitializeHandler(this, 1, 1.0f, physicalDeviceModuleRef->computeFamilyIndex);
+	presentQueue.InitializeHandler( this, 1, 1.0f, physicalDeviceModuleRef->presentFamilyIndex);
+	computeQueue.InitializeHandler( this, 1, 1.0f, physicalDeviceModuleRef->computeFamilyIndex);
 
 	//create a list with all comandqueues info
 	vector<VkDeviceQueueCreateInfo> queueInfo{};
@@ -43,7 +43,6 @@ LogicalDeviceModule::LogicalDeviceModule(PhysicalDeviceModule* physicalDevice)
 
 	graphicsQueue.SetHandler();
 	cout << "Compute queue handler created" << endl;
-
 }
 
 LogicalDeviceModule::~LogicalDeviceModule()
