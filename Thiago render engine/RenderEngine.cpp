@@ -44,9 +44,8 @@ Hub::Hub() {
 	logicalDevice = new LogicalDeviceModule(physicalDevice);
 	swapChain->CreateSwapChain(physicalDevice, &logicalDevice->device);
 	swapChain->CreateImageViews(&logicalDevice->device);
-	pipeline = new PipelineModule(&logicalDevice->device);
+	pipeline = new PipelineModule(&logicalDevice->device, swapChain->extent);
 }
-
 Hub::~Hub() {
 	delete pipeline;
 	delete validationLayers;
