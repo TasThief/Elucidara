@@ -164,7 +164,7 @@ void RenderingEngine::init_Device()
 
 void RenderingEngine::init_SwapChain()
 {
-	physicalDevice.getSurfaceSupportKHR()
+//	physicalDevice.getSurfaceSupportKHR()
 }
 
 // Test the devices to get the best one
