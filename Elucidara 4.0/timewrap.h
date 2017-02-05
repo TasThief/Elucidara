@@ -17,10 +17,10 @@ public:
 		//if this is closed
 		if (!_resource) {
 
-			//create a mutex to read res value
+			//create a lock
 			unique_lock<mutex> lock(lock);
 
-			//wait til res is filled with info
+			//wait til resouce is filled with info
 			_flag.wait(lock, [this]() { return _resource; });
 		}
 	}
@@ -34,7 +34,7 @@ public:
 		//if i am not setting stuff to null
 		if (value) {
 
-			//set res's value
+			//set resouce's value
 			_resource = value;
 
 			//if i havent opened the locks yet
@@ -42,9 +42,10 @@ public:
 		}
 	}
 
-	//get the resource for reading ***DO NOT ALTER ITS VALUE*** use SET instead, setting the value through here will couse a deadlock
-	inline resource* get(){ return _resource; }
-
-	inline operator resource*() const { return _resource; }
+	//get the resource for reading if this resource is null will wait until its not anymore
+	inline resource* get() { 
+		wait();
+		return _resource; 	
+	}
 };
 

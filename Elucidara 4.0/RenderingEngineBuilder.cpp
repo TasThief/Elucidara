@@ -71,7 +71,7 @@ void RenderingEngineBuilder::build_window()
 
 void RenderingEngineBuilder::build_instance()
 {
-	layers.wait();
+//	layers.wait();
 
 	// ApplicationInfo allows the programmer to specifiy some basic information about the
 	// program, which can be useful for layers and tools to provide more debug information.
@@ -118,17 +118,17 @@ void RenderingEngineBuilder::build_instance()
 void RenderingEngineBuilder::build_surface()
 {
 	//wait for the window to be acquired
-	window.wait();
+//	window.wait();
 	SDL_SysWMinfo windowInfo;
 
 	SDL_VERSION(&windowInfo.version);
 
-	if (!SDL_GetWindowWMInfo(window, &windowInfo)) {
+	if (!SDL_GetWindowWMInfo(window.get(), &windowInfo)) {
 		throw std::system_error(std::error_code(), "SDK window manager info is not available.");
 	}
 
 	//wait for the instance to be acquired
-	instance.wait();
+//	instance.wait();
 
 #if defined(SDL_VIDEO_DRIVER_ANDROID) && defined(VK_USE_PLATFORM_ANDROID_KHR)
 	if (windowInfo.subsystem == SDL_SYSWM_ANDROID)
@@ -212,8 +212,7 @@ void RenderingEngineBuilder::build()
 	thread t_layers(&RenderingEngineBuilder::build_layers, this);
 	t_layers.detach();
 
-	//thread t_window(&RenderingEngineBuilder::build_window, this);
-	//t_window.detach();
+	//the window process cant be in another thread besides main...
 	cout << "starting to build: window" << endl;
 	build_window();
 
