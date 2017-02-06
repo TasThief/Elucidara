@@ -1,9 +1,15 @@
 #include "stdafx.h"
+#include "ThreadPool.h"
+
+
 
 int main()
 {
+	ThreadPool tp(3);
+
 	RenderingEngine engine;
 	engine.initialize();
+
 
 	// Poll for user input.
 	bool stillRunning = true;

@@ -1,5 +1,6 @@
 #pragma once
 #include "timewrap.h"
+#include "ThreadPool.h"
 
 class RenderingEngine;
 

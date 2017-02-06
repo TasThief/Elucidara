@@ -71,10 +71,6 @@ void RenderingEngineBuilder::build_window()
 
 void RenderingEngineBuilder::build_instance()
 {
-//	layers.wait();
-
-	// ApplicationInfo allows the programmer to specifiy some basic information about the
-	// program, which can be useful for layers and tools to provide more debug information.
 	ApplicationInfo appInfo = ApplicationInfo()
 		.setPApplicationName("Fps")
 		.setApplicationVersion(1)
@@ -97,8 +93,6 @@ void RenderingEngineBuilder::build_instance()
 	extensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 #endif
 
-
-	// InstanceCreateInfo is where the programmer specifies the layers and/or extensions that are needed.
 	InstanceCreateInfo instInfo = InstanceCreateInfo()
 		.setFlags(InstanceCreateFlags())
 		.setPApplicationInfo(&appInfo)
@@ -107,12 +101,10 @@ void RenderingEngineBuilder::build_instance()
 		.setEnabledLayerCount(static_cast<uint32_t>(layers.get()->size()))
 		.setPpEnabledLayerNames(layers.get()->data());
 
-	// Create the Vulkan instance.
 	engine->instance = new Instance(createInstance(instInfo));
 	
 	cout << "instance completed" << endl;
 	instance.set(engine->instance);
-
 }
 
 void RenderingEngineBuilder::build_surface()
@@ -201,18 +193,17 @@ void RenderingEngineBuilder::build()
 	cout << "builder initialized" << endl << endl;
 
 	cout << "starting to build: surface" << endl;
-	thread t_surface(&RenderingEngineBuilder::build_surface, this);
-	t_surface.detach();
+	ThreadPool::add_command([this]() { build_surface(); });
+	//	std::bind(&RenderingEngineBuilder::build_surface, this));
 
 	cout << "starting to build: instance" << endl;
-	thread t_instance(&RenderingEngineBuilder::build_instance, this);
-	t_instance.detach();
+	ThreadPool::add_command([this]() { build_instance(); });
+
 	
 	cout << "starting to build: validation layers" << endl;
-	thread t_layers(&RenderingEngineBuilder::build_layers, this);
-	t_layers.detach();
+	ThreadPool::add_command([this]() { build_layers(); });
 
-	//the window process cant be in another thread besides main...
+	//the window process should be in the main thread
 	cout << "starting to build: window" << endl;
 	build_window();
 

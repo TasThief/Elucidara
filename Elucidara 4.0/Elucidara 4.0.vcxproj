@@ -154,19 +154,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FamilyQueueInfo.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PhysicalDeviceMap.cpp" />
     <ClCompile Include="RenderingEngine.cpp" />
     <ClCompile Include="RenderingEngineBuilder.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FamilyQueueInfo.h" />
+    <ClInclude Include="PhysicalDeviceMap.h" />
     <ClInclude Include="RenderingEngine.h" />
     <ClInclude Include="RenderingEngineBuilder.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="timewrap.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

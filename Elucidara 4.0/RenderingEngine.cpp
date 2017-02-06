@@ -8,6 +8,7 @@ void RenderingEngine::initialize()
 
 RenderingEngine::RenderingEngine()
 {
+	
 }
 
 
@@ -15,22 +16,14 @@ RenderingEngine::~RenderingEngine()
 {
 	cout << "destroying surface" << endl;
 	instance->destroySurfaceKHR(*surface);
+	delete surface;
 
 	cout << "destroying window" << endl;
 	SDL_DestroyWindow(window);
-
 	SDL_Quit();
 
 	cout << "destroying surface" << endl;
 	instance->destroy();
-
-
-	cout << endl;
-
-	cout << "deleting surface" << endl;
-	delete surface;
-
-	cout << "deleting instance" << endl;
 	delete instance;
 
 	cout << "deleting validation layers" << endl;
