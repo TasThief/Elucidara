@@ -33,9 +33,6 @@
     <ClCompile Include="PhysicalDeviceMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FamilyQueueInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
@@ -59,7 +56,7 @@
     <ClInclude Include="PhysicalDeviceMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FamilyQueueInfo.h">
+    <ClInclude Include="FamilyInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

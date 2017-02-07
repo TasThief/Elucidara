@@ -1,15 +1,19 @@
 #pragma once
-#include "FamilyQueueInfo.h"
+#include "FamilyInfo.h"
 
 class PhysicalDeviceMap
 {
+private:
+	map <vk::QueueFlagBits, FamilyIndex*>* indexMap;
+
 public:
 	PhysicalDevice* device;
-
-	//Map containing all the family indexes and other sorts of info
-	map <vk::QueueFlagBits, FamilyQueueInfo*>* familyMap;
 	
 	void set_device(const PhysicalDevice device);
+
+	FamilyIndex * get_familyIndex(const vk::QueueFlagBits type);
+
+	bool check_fitness(map<vk::QueueFlagBits, FamilyRequest*>* requestMap, function<bool(PhysicalDevice*)> predicate);
 
 	PhysicalDeviceMap();
 

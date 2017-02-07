@@ -154,7 +154,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FamilyQueueInfo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PhysicalDeviceMap.cpp" />
     <ClCompile Include="RenderingEngine.cpp" />
@@ -168,7 +167,7 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FamilyQueueInfo.h" />
+    <ClInclude Include="FamilyInfo.h" />
     <ClInclude Include="PhysicalDeviceMap.h" />
     <ClInclude Include="RenderingEngine.h" />
     <ClInclude Include="RenderingEngineBuilder.h" />

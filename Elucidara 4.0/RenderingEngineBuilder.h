@@ -10,10 +10,10 @@ private:
 	RenderingEngine* engine = nullptr;
 
 	timewrap<vector<const char*>>	layers		    ;
-	timewrap<Instance>				instance		;
-	timewrap<SDL_Window>			window			;
-	timewrap<SurfaceKHR>			surface			;
-	timewrap<Device>				device			;
+	timewrap<Instance>				instance	    ;
+	timewrap<SDL_Window>			window		    ;
+	timewrap<SurfaceKHR>			surface		    ;
+	timewrap<Device>				device		    ;
 	timewrap<PhysicalDevice>		physicalDevice  ;
 	
 	void build_window		  ();
