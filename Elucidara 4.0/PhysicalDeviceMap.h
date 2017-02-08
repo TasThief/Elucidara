@@ -4,16 +4,16 @@
 class PhysicalDeviceMap
 {
 private:
-	map <vk::QueueFlagBits, FamilyIndex*>* indexMap;
+	map <QFB, FamilyIndex*>* indexMap;
 
 public:
 	PhysicalDevice* device;
 	
 	void set_device(const PhysicalDevice device);
 
-	FamilyIndex * get_familyIndex(const vk::QueueFlagBits type);
+	FamilyIndex * get_familyIndex(const QFB type);
 
-	bool check_fitness(map<vk::QueueFlagBits, vector<float>>& requestMap, function<bool(PhysicalDevice*)> predicate);
+	bool check_fitness(map<QFB, vector<float>>& requestMap, function<bool(PhysicalDevice*)> predicate);
 
 	PhysicalDeviceMap();
 

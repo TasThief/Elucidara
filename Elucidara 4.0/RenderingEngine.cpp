@@ -32,4 +32,7 @@ RenderingEngine::~RenderingEngine()
 
 	cout << "deleting validation layers" << endl;
 	delete validationLayers;
+
+	cout << "deleting queue handler map" << endl;
+	delete queueMap;
 }

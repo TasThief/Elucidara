@@ -6,10 +6,10 @@ void PhysicalDeviceMap::set_device(const PhysicalDevice newDevice)
 	device = new PhysicalDevice(newDevice);
 
 	//the family prorperties collected from the device
-	vector<vk::QueueFamilyProperties> properties = device->getQueueFamilyProperties();
+	vector<QueueFamilyProperties> properties = device->getQueueFamilyProperties();
 
 	//for each key in the family map
-	for (map<vk::QueueFlagBits, FamilyIndex*>::iterator itr = indexMap->begin(); itr != indexMap->end(); itr++)
+	for (map<QFB, FamilyIndex*>::iterator itr = indexMap->begin(); itr != indexMap->end(); itr++)
 
 		//seek for a prorperty block related to it's type
 		for (size_t j = 0; j < properties.size(); j++)
@@ -21,20 +21,20 @@ void PhysicalDeviceMap::set_device(const PhysicalDevice newDevice)
 			}
 }
 
-FamilyIndex* PhysicalDeviceMap::get_familyIndex(const vk::QueueFlagBits type)
+FamilyIndex* PhysicalDeviceMap::get_familyIndex(const QFB type)
 {
-	if (type == vk::QueueFlagBits::eCompute ||
-		type == vk::QueueFlagBits::eGraphics ||
-		type == vk::QueueFlagBits::eTransfer ||
-		type == vk::QueueFlagBits::eSparseBinding)
+	if (type == QFB::eCompute ||
+		type == QFB::eGraphics ||
+		type == QFB::eTransfer ||
+		type == QFB::eSparseBinding)
 		return (*indexMap)[type];
 	else
 		throw invalid_argument("indexes can only be one of the 4 available");
 }
 
-bool PhysicalDeviceMap::check_fitness(map <vk::QueueFlagBits, vector<float>>& requestMap, function<bool(PhysicalDevice*)> predicate = nullptr)
+bool PhysicalDeviceMap::check_fitness(map <QFB, vector<float>>& requestMap, function<bool(PhysicalDevice*)> predicate = nullptr)
 {
-	for (map <vk::QueueFlagBits, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++)
+	for (map <QFB, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++)
 		if (!get_familyIndex(itr->first)->validate(itr->second))
 			return false;
 
@@ -46,18 +46,18 @@ bool PhysicalDeviceMap::check_fitness(map <vk::QueueFlagBits, vector<float>>& re
 
 PhysicalDeviceMap::PhysicalDeviceMap()
 {
-	indexMap = new map <vk::QueueFlagBits, FamilyIndex*>();
+	indexMap = new map <QFB, FamilyIndex*>();
 
 	//initialize the family map to have 4 keys, one for each family type
-	(*indexMap)[vk::QueueFlagBits::eCompute] = new FamilyIndex();
-	(*indexMap)[vk::QueueFlagBits::eGraphics] = new FamilyIndex();
-	(*indexMap)[vk::QueueFlagBits::eSparseBinding] = new FamilyIndex();
-	(*indexMap)[vk::QueueFlagBits::eTransfer] = new FamilyIndex();
+	(*indexMap)[QFB::eCompute] = new FamilyIndex();
+	(*indexMap)[QFB::eGraphics] = new FamilyIndex();
+	(*indexMap)[QFB::eSparseBinding] = new FamilyIndex();
+	(*indexMap)[QFB::eTransfer] = new FamilyIndex();
 }
 
 void PhysicalDeviceMap::destroy()
 {
-	for (map<vk::QueueFlagBits, FamilyIndex*>::iterator itr = indexMap->begin(); itr != indexMap->end(); itr++)
+	for (map<QFB, FamilyIndex*>::iterator itr = indexMap->begin(); itr != indexMap->end(); itr++)
 	{
 		delete itr->second;
 	}

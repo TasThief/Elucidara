@@ -6,10 +6,10 @@ RenderingEngineBuilder::RenderingEngineBuilder(RenderingEngine* engine)
 {
 	this->engine = engine;
 
-	requestMap[QueueFlagBits::eGraphics].push_back(1.0f);
-
-//	requestMap[QueueFlagBits::eGraphics].count = 1;
-//	requestMap[QueueFlagBits::eGraphics].priority = 1.0f;
+	requestMap[QFB::eGraphics].push_back(1.0f);
+	requestMap[QFB::eGraphics].push_back(1.0f);
+//	requestMap[QFB::eGraphics].count = 1;
+//	requestMap[QFB::eGraphics].priority = 1.0f;
 }
 
 void RenderingEngineBuilder::build_layers()
@@ -121,7 +121,7 @@ void RenderingEngineBuilder::build_surface()
 	SDL_VERSION(&windowInfo.version);
 
 	if (!SDL_GetWindowWMInfo(window.get(), &windowInfo)) {
-		throw std::system_error(std::error_code(), "SDK window manager info is not available.");
+		throw system_error(std::error_code(), "SDK window manager info is not available.");
 	}
 
 	//wait for the instance to be acquired
@@ -130,7 +130,7 @@ void RenderingEngineBuilder::build_surface()
 #if defined(SDL_VIDEO_DRIVER_ANDROID) && defined(VK_USE_PLATFORM_ANDROID_KHR)
 	if (windowInfo.subsystem == SDL_SYSWM_ANDROID)
 	{
-		vk::AndroidSurfaceCreateInfoKHR surfaceInfo = vk::AndroidSurfaceCreateInfoKHR()
+		AndroidSurfaceCreateInfoKHR surfaceInfo = AndroidSurfaceCreateInfoKHR()
 			.setWindow(windowInfo.info.android.window);
 
 		engine->surface = new SurfaceKHR(instance.get()->createAndroidSurfaceKHR(surfaceInfo));
@@ -140,7 +140,7 @@ void RenderingEngineBuilder::build_surface()
 #if defined(SDL_VIDEO_DRIVER_MIR) && defined(VK_USE_PLATFORM_MIR_KHR)
 	if (windowInfo.subsystem == SDL_SYSWM_MIR)
 	{
-		vk::MirSurfaceCreateInfoKHR surfaceInfo = vk::MirSurfaceCreateInfoKHR()
+		MirSurfaceCreateInfoKHR surfaceInfo = MirSurfaceCreateInfoKHR()
 			.setConnection(windowInfo.info.mir.connection)
 			.setMirSurface(windowInfo.info.mir.surface);
 
@@ -151,7 +151,7 @@ void RenderingEngineBuilder::build_surface()
 #if defined(SDL_VIDEO_DRIVER_WAYLAND) && defined(VK_USE_PLATFORM_WAYLAND_KHR)
 	if (windowInfo.subsystem == SDL_SYSWM_WAYLAND)
 	{
-		vk::WaylandSurfaceCreateInfoKHR surfaceInfo = vk::WaylandSurfaceCreateInfoKHR()
+		WaylandSurfaceCreateInfoKHR surfaceInfo = WaylandSurfaceCreateInfoKHR()
 			.setDisplay(windowInfo.info.wl.display)
 			.setSurface(windowInfo.info.wl.surface);
 
@@ -162,7 +162,7 @@ void RenderingEngineBuilder::build_surface()
 #if defined(SDL_VIDEO_DRIVER_WINDOWS) && defined(VK_USE_PLATFORM_WIN32_KHR)
 	if (windowInfo.subsystem == SDL_SYSWM_WINDOWS)
 	{
-		vk::Win32SurfaceCreateInfoKHR surfaceInfo = vk::Win32SurfaceCreateInfoKHR()
+		Win32SurfaceCreateInfoKHR surfaceInfo = Win32SurfaceCreateInfoKHR()
 			.setHinstance(GetModuleHandle(NULL))
 			.setHwnd(windowInfo.info.win.window);
 
@@ -173,7 +173,7 @@ void RenderingEngineBuilder::build_surface()
 #if defined(SDL_VIDEO_DRIVER_X11) && defined(VK_USE_PLATFORM_XLIB_KHR)
 	if (windowInfo.subsystem == SDL_SYSWM_X11)
 	{
-		vk::XlibSurfaceCreateInfoKHR surfaceInfo = vk::XlibSurfaceCreateInfoKHR()
+		XlibSurfaceCreateInfoKHR surfaceInfo = XlibSurfaceCreateInfoKHR()
 			.setDpy(windowInfo.info.x11.display)
 			.setWindow(windowInfo.info.x11.window);
 
@@ -224,12 +224,12 @@ void RenderingEngineBuilder::build_physicalDevice()
 			//if the device is fit for this application
 			if (itr->check_fitness(requestMap, nullptr))
 
-				//copare it with other found devices
+				//compare it with other found devices
 				result = (!result) ? itr._Ptr : compare_devices(itr._Ptr, result);
 
 		//if even so no devices was found throw an error
 		if(!result)
-			throw system_error(std::error_code(), "No available gpu found");
+			throw system_error(error_code(), "No available gpu found");
 		
 		//else send a accomplishment message
 		cout << "physical device found" << endl;
@@ -238,38 +238,67 @@ void RenderingEngineBuilder::build_physicalDevice()
 		physicalDevice.set(new PhysicalDeviceMap(*result));
 	}
 	else
-		throw system_error(std::error_code(), "No available gpu found");
+		throw system_error(error_code(), "No available gpu found");
 
 }
 
 void RenderingEngineBuilder::build_device()
 {
-	//initialize info table fit for all requested command queues
-	vector<DeviceQueueCreateInfo> familyInfoList(requestMap.size());
-
-	//use the information from the request list/physical device family map to build all the info blocks nescessary
-	int i = 0;
-	for (map<QueueFlagBits, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++, i++){
-		familyInfoList[i]
-			.setQueueFamilyIndex(physicalDevice.get()->get_familyIndex(itr->first)->index)
-			.setQueueCount(requestMap[itr->first].size())
-			.setPQueuePriorities(requestMap[itr->first].data());
-	}
-
+	//not using any features
 	PhysicalDeviceFeatures features;
 
+	//build the device info block
 	DeviceCreateInfo deviceInfo;
+
+	//set everything that does not use any timewrap (besides the layers)
 	deviceInfo
-		.setQueueCreateInfoCount(familyInfoList.size())
-		.setPQueueCreateInfos(familyInfoList.data())
 		.setEnabledExtensionCount(0)
 		.setPEnabledFeatures(&features)
 		.setEnabledLayerCount(static_cast<uint32_t>(layers.get()->size()))
 		.setPpEnabledLayerNames(layers.get()->data());
 
+	//initialize info table fit for all requested command queues
+	vector<DeviceQueueCreateInfo> familyInfoList(requestMap.size());
+
+	//use the information from the request list/physical device family map to build all the info blocks nescessary
+	int i = 0;
+	for (map<QFB, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++, i++)
+		familyInfoList[i]
+			.setQueueCount(requestMap[itr->first].size())
+			.setPQueuePriorities(requestMap[itr->first].data())
+			.setQueueFamilyIndex(physicalDevice.get()->get_familyIndex(itr->first)->index);
+
+	//set family information
+	deviceInfo
+		.setQueueCreateInfoCount(familyInfoList.size())
+		.setPQueueCreateInfos(familyInfoList.data());
+
+	//save info 
 	engine->device = new Device(physicalDevice.get()->device->createDevice(deviceInfo));
+	
+	//message
+	cout << "logical device created" << endl;
+	
+	//set timewrap
 	device.set(engine->device);
 }
+
+void RenderingEngineBuilder::build_queueHandlers()
+{
+	//create queue handler map
+	engine->queueMap = new map <QFB, vector<Queue>>;
+
+	//use the request map/physical device queue index map to generate a queue handler map
+	for (map<QFB, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++)
+		for (uint32_t i = 0; i < requestMap[itr->first].size(); i++)
+			(*engine->queueMap)[itr->first].push_back(device.get()->getQueue(physicalDevice.get()->get_familyIndex(itr->first)->index, i));
+
+	cout << "queue handlers built" << endl;
+	//save the queue handler map into the time wrap
+	queueMap.set(engine->queueMap);
+}
+
+
 
 PhysicalDeviceMap* RenderingEngineBuilder::compare_devices(PhysicalDeviceMap* map1, PhysicalDeviceMap* map2)
 {
@@ -295,6 +324,9 @@ void RenderingEngineBuilder::build()
 	cout << "starting to build: logical device " << endl;
 	ThreadPool::add_command([this]() { build_device(); });
 
+	cout << "starting to build: queue handlers " << endl;
+	ThreadPool::add_command([this]() { build_queueHandlers(); });
+
 	//the window process should be in the main thread
 	cout << "starting to build: window" << endl;
 	build_window();
@@ -305,6 +337,7 @@ void RenderingEngineBuilder::build()
 	layers.wait();
 	physicalDevice.wait();
 	device.wait();
+	queueMap.wait();
 
 	cout << endl << "building finished" << endl;
 }

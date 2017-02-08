@@ -7,6 +7,8 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 
+#define QFB QueueFlagBits
+
 #define SDL_MAIN_HANDLED
 
 //rendering stuff
