@@ -8,8 +8,6 @@ RenderingEngineBuilder::RenderingEngineBuilder(RenderingEngine* engine)
 
 	requestMap[QFB::eGraphics].push_back(1.0f);
 	requestMap[QFB::eGraphics].push_back(1.0f);
-//	requestMap[QFB::eGraphics].count = 1;
-//	requestMap[QFB::eGraphics].priority = 1.0f;
 }
 
 void RenderingEngineBuilder::build_layers()
@@ -62,7 +60,7 @@ void RenderingEngineBuilder::build_window()
 		"Vulkan Window",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		1280, 720,
+		WIDTH, HEIGHT,
 		SDL_WINDOW_OPENGL);
 
 	if (engine->window == NULL) {
@@ -203,13 +201,17 @@ void RenderingEngineBuilder::build_physicalDevice()
 
 		//if i have more then one device, deploy other threads to map it
 		for (size_t i = 1; i < physicalDevices.size(); i++)
-			ThreadPool::add_command([&waitList, &physicalDevices, &maps, i]() {
+			ThreadPool::add_command([&waitList, &physicalDevices, &maps, i, this]() {
 			maps[i].set_device(physicalDevices[i]);
+			maps[i].find_presentQueue(*surface.get());
+			maps[i].get_swapchainConstraints(*surface.get());
 			waitList[i - 1].go();
 		});
 
 		//while other threads are mapping other possible other devices, map the device 0 
 		maps[0].set_device(physicalDevices[0]);
+		maps[0].find_presentQueue(*surface.get());
+		maps[0].get_swapchainConstraints(*surface.get());
 
 		//if other threads are mapping the gpu wait for them to end their job before proceding 
 		for (vector<flag>::iterator itr = waitList.begin(); itr != waitList.end(); itr++)
@@ -222,7 +224,7 @@ void RenderingEngineBuilder::build_physicalDevice()
 		for (vector<PhysicalDeviceMap>::iterator itr = maps.begin(); itr != maps.end(); itr++)
 			
 			//if the device is fit for this application
-			if (itr->check_fitness(requestMap, nullptr))
+			if (itr->check_fitness(requestMap, *surface.get()))
 
 				//compare it with other found devices
 				result = (!result) ? itr._Ptr : compare_devices(itr._Ptr, result);
@@ -298,25 +300,47 @@ void RenderingEngineBuilder::build_queueHandlers()
 	queueMap.set(engine->queueMap);
 }
 
+void RenderingEngineBuilder::build_swapchain()
+{
 
+	vector<PresentModeKHR> presentModes = physicalDevice.get()->device->getSurfacePresentModesKHR(*surface.get());
+
+	SwapchainCreateInfoKHR creationInfo;
+/*	creationInfo
+		.setSurface(*surface.get())
+		.setImageFormat(Format::eB8G8R8A8Unorm)
+		.setMinImageCount(minImageCount_)
+		.setImageColorSpace(imageColorSpace_)
+		.setImageExtent(imageExtent_)
+		.setImageArrayLayers(imageArrayLayers_)
+		.setImageUsage(imageUsage_)
+		.setImageSharingMode(imageSharingMode_)
+		.setQueueFamilyIndexCount(queueFamilyIndexCount_)
+		.setPQueueFamilyIndices(pQueueFamilyIndices_)
+		.setPreTransform(preTransform_)
+		.setCompositeAlpha(compositeAlpha_)
+		.setPresentMode(presentMode_)
+		.setClipped(clipped_)
+		.setOldSwapchain(oldSwapchain_);*/
+}
 
 PhysicalDeviceMap* RenderingEngineBuilder::compare_devices(PhysicalDeviceMap* map1, PhysicalDeviceMap* map2)
 {
-	return map1;
+	return (map1->grade > map2->grade) ? map1 : map2;
 }
 
 void RenderingEngineBuilder::build()
 {
 	cout << "builder initialized" << endl << endl;
 
-	cout << "starting to build: surface" << endl;
-	ThreadPool::add_command([this]() { build_surface(); });
+	cout << "starting to build: validation layers" << endl;
+	ThreadPool::add_command([this]() { build_layers(); });
 
 	cout << "starting to build: instance" << endl;
 	ThreadPool::add_command([this]() { build_instance(); });
 
-	cout << "starting to build: validation layers" << endl;
-	ThreadPool::add_command([this]() { build_layers(); });
+	cout << "starting to build: surface" << endl;
+	ThreadPool::add_command([this]() { build_surface(); });
 
 	cout << "starting to build: physical device map" << endl;
 	ThreadPool::add_command([this]() { build_physicalDevice(); });

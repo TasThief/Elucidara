@@ -13,7 +13,7 @@ public:
 	Queue*					 gQueue = nullptr;
 	CommandPool*			 commandPool = nullptr;
 	map<QFB, vector<Queue>>* queueMap = nullptr;
-//	PhysicalDeviceMap*   physicalDevice = nullptr;
+	SwapchainKHR*			 swapchain = nullptr;
 
 	void initialize();
 
