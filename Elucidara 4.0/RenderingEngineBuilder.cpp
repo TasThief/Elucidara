@@ -5,6 +5,11 @@
 RenderingEngineBuilder::RenderingEngineBuilder(RenderingEngine* engine)
 {
 	this->engine = engine;
+
+	requestMap[QueueFlagBits::eGraphics].push_back(1.0f);
+
+//	requestMap[QueueFlagBits::eGraphics].count = 1;
+//	requestMap[QueueFlagBits::eGraphics].priority = 1.0f;
 }
 
 void RenderingEngineBuilder::build_layers()
@@ -36,7 +41,7 @@ void RenderingEngineBuilder::build_layers()
 
 		//if they are not throw an error
 		if (!layerFound)
-			throw std::system_error(std::error_code(), "Layer not setup properly!");
+			throw system_error(std::error_code(), "Layer not setup properly!");
 	}
 #endif
 
@@ -177,7 +182,7 @@ void RenderingEngineBuilder::build_surface()
 #endif
 
 	else
-		throw std::system_error(std::error_code(), "Unsupported window manager is in use.");
+		throw system_error(std::error_code(), "Unsupported window manager is in use.");
 
 	cout << "surface completed" << endl;
 	surface.set(engine->surface);
@@ -185,7 +190,90 @@ void RenderingEngineBuilder::build_surface()
 
 void RenderingEngineBuilder::build_physicalDevice()
 {
+	//collect devices
+	vector<PhysicalDevice> physicalDevices = instance.get()->enumeratePhysicalDevices();
 
+	if (physicalDevices.size() > 0)
+	{
+		//get a physical map list fit for the ammount if devices found
+		vector<PhysicalDeviceMap> maps(physicalDevices.size());
+
+		//start a wait flag list if more then 1 gpu was found
+		vector<flag> waitList(physicalDevices.size() - 1);
+
+		//if i have more then one device, deploy other threads to map it
+		for (size_t i = 1; i < physicalDevices.size(); i++)
+			ThreadPool::add_command([&waitList, &physicalDevices, &maps, i]() {
+			maps[i].set_device(physicalDevices[i]);
+			waitList[i - 1].go();
+		});
+
+		//while other threads are mapping other possible other devices, map the device 0 
+		maps[0].set_device(physicalDevices[0]);
+
+		//if other threads are mapping the gpu wait for them to end their job before proceding 
+		for (vector<flag>::iterator itr = waitList.begin(); itr != waitList.end(); itr++)
+			itr->sleep();
+
+		//initialize a pointer to the best fit device
+		PhysicalDeviceMap* result = nullptr;
+
+		//sort out the best device
+		for (vector<PhysicalDeviceMap>::iterator itr = maps.begin(); itr != maps.end(); itr++)
+			
+			//if the device is fit for this application
+			if (itr->check_fitness(requestMap, nullptr))
+
+				//copare it with other found devices
+				result = (!result) ? itr._Ptr : compare_devices(itr._Ptr, result);
+
+		//if even so no devices was found throw an error
+		if(!result)
+			throw system_error(std::error_code(), "No available gpu found");
+		
+		//else send a accomplishment message
+		cout << "physical device found" << endl;
+
+		//save the found map in the timewrap
+		physicalDevice.set(new PhysicalDeviceMap(*result));
+	}
+	else
+		throw system_error(std::error_code(), "No available gpu found");
+
+}
+
+void RenderingEngineBuilder::build_device()
+{
+	//initialize info table fit for all requested command queues
+	vector<DeviceQueueCreateInfo> familyInfoList(requestMap.size());
+
+	//use the information from the request list/physical device family map to build all the info blocks nescessary
+	int i = 0;
+	for (map<QueueFlagBits, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++, i++){
+		familyInfoList[i]
+			.setQueueFamilyIndex(physicalDevice.get()->get_familyIndex(itr->first)->index)
+			.setQueueCount(requestMap[itr->first].size())
+			.setPQueuePriorities(requestMap[itr->first].data());
+	}
+
+	PhysicalDeviceFeatures features;
+
+	DeviceCreateInfo deviceInfo;
+	deviceInfo
+		.setQueueCreateInfoCount(familyInfoList.size())
+		.setPQueueCreateInfos(familyInfoList.data())
+		.setEnabledExtensionCount(0)
+		.setPEnabledFeatures(&features)
+		.setEnabledLayerCount(static_cast<uint32_t>(layers.get()->size()))
+		.setPpEnabledLayerNames(layers.get()->data());
+
+	engine->device = new Device(physicalDevice.get()->device->createDevice(deviceInfo));
+	device.set(engine->device);
+}
+
+PhysicalDeviceMap* RenderingEngineBuilder::compare_devices(PhysicalDeviceMap* map1, PhysicalDeviceMap* map2)
+{
+	return map1;
 }
 
 void RenderingEngineBuilder::build()
@@ -194,24 +282,29 @@ void RenderingEngineBuilder::build()
 
 	cout << "starting to build: surface" << endl;
 	ThreadPool::add_command([this]() { build_surface(); });
-	//	std::bind(&RenderingEngineBuilder::build_surface, this));
 
 	cout << "starting to build: instance" << endl;
 	ThreadPool::add_command([this]() { build_instance(); });
 
-	
 	cout << "starting to build: validation layers" << endl;
 	ThreadPool::add_command([this]() { build_layers(); });
+
+	cout << "starting to build: physical device map" << endl;
+	ThreadPool::add_command([this]() { build_physicalDevice(); });
+
+	cout << "starting to build: logical device " << endl;
+	ThreadPool::add_command([this]() { build_device(); });
 
 	//the window process should be in the main thread
 	cout << "starting to build: window" << endl;
 	build_window();
 
-
 	surface.wait();
 	instance.wait();
 	window.wait();
 	layers.wait();
+	physicalDevice.wait();
+	device.wait();
 
 	cout << endl << "building finished" << endl;
 }
@@ -219,6 +312,8 @@ void RenderingEngineBuilder::build()
 
 RenderingEngineBuilder::~RenderingEngineBuilder()
 {
+	physicalDevice.get()->destroy();
+	physicalDevice.destroy();
 }
 
 //void RenderingEngineBuilder::build_gQueue(Queue & value)

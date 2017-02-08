@@ -21,58 +21,55 @@ void ThreadPool::add_command(function<void()>  command) {
 	s->ready.notify_one();
 }
 
-//set the thread to solve commands
 void ThreadPool::start_cycle(ThreadInfo* info)
 {
 	unique_lock<mutex> lock(s->queuelock);
 
 	while (info->isRunning)
 	{
+		if(lock.owns_lock())
+			lock.unlock();
 
-		if (s->commandQueue.empty())
-		{
-
-#if defined threadDebug
-			cout << "hibernating" << endl;
-#endif
-
-			info->isAwake = false;
-
-			s->ready.wait(lock, []() {return !s->commandQueue.empty();});
-
-			info->isAwake = true;
-
-#if defined threadDebug
-			cout << "waking" << endl;
-#endif
-
-		}
-#if defined threadDebug
-		else
-		{
-			cout << "no need for sleep" << endl;
-		}
-#endif
-
-		info->process = s->commandQueue.front();
-
-		s->commandQueue.pop();
-		
-		lock.unlock();
-
-		info->process();
-
-#if defined threadDebug
-		cout << "process finished"<<endl;
-#endif
+		info->burn();
 
 		lock.lock();
 
-		info->process = nullptr;
+		if (s->commandQueue.empty())
+		{
+			info->isAwake = false;
+
+			s->ready.wait(lock, [info]() {return !info->isRunning || !s->commandQueue.empty();});
+
+			info->isAwake = true;
+		}
+
+		if (!lock.owns_lock())
+			lock.lock();
+		
+		info->process = s->drawProcess();
+
+		if (lock.owns_lock())
+			lock.unlock();
 	}
+
 	info->isAlive = false;
 
 	info->aliveBlock.notify_all();
+}
+
+
+function<void()> ThreadPool::drawProcess()
+{
+	function<void()> result = nullptr;
+
+	if (commandQueue.size() > 0)
+	{
+		result = commandQueue.front();
+
+		commandQueue.pop();
+	}
+
+	return result;
 }
 
 //initialize x ammount of threads and put them into the infinite resolution cycle 
@@ -89,58 +86,23 @@ ThreadPool::ThreadPool(int threadcount)
 		daemon.detach();
 	}
 }
-ThreadPool::ThreadPool() {}
+
 //kill all threads
 ThreadPool::~ThreadPool()
 {
-	for (vector<ThreadInfo*>::iterator itr = threadInfos.begin(); itr != threadInfos.end(); itr++){
-		unique_lock<mutex> lock((*itr)->aliveMutex);
+	for (vector<ThreadInfo*>::iterator itr = threadInfos.begin(); itr != threadInfos.end(); itr++)
+		(*itr)->isRunning = false;
+
+	s->ready.notify_all();
+	
+	for (vector<ThreadInfo*>::iterator itr = threadInfos.begin(); itr != threadInfos.end(); itr++) {
 		if ((*itr)->isAlive)
+		{
+			unique_lock<mutex> lock((*itr)->aliveMutex);
+			cout << "thread " << (*itr)->id << " is still busy, waiting for it to finish its process" << endl;
 			(*itr)->aliveBlock.wait(lock, [itr]() { return !(*itr)->isAlive;});
+		}
+		cout << "thread " << (*itr)->id << " destroyed" << endl;
 		delete *itr;
 	}
 }
-
-
-
-/*
-//set the thread to solve commands
-void ThreadPool::start_cycle(ThreadInfo info)
-{
-//start thread cycle
-while (info.isRunning)
-{
-{
-//this lock ensures the thread safety to command queue
-unique_lock<mutex> lock(s->queuelock);
-
-//if the queue is empty
-if (s->commandQueue.empty())
-{
-info.isAwake = false;
-//sleep til a command is stashed
-s->ready.wait(lock, []() {return !s->commandQueue.empty();});
-
-info.isAwake = true;
-}
-}
-{
-//this lock (again) ensures the thread safety to command queue
-lock_guard<mutex> lock(s->queuelock);
-
-//save the top command
-info.process = s->commandQueue.front();
-
-//remove it from the top of the queue
-s->commandQueue.pop();
-}
-//execute it
-info.process();
-
-//delete it
-info.process = nullptr;
-}
-info.isAlive = false;
-}
-
-*/

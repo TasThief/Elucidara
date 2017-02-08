@@ -69,4 +69,10 @@ public:
 		//when the wrapped object is not a nullptr anymore return it
 		return _resource;
 	}
+
+	inline void destroy()
+	{
+		if (_resource)
+			delete _resource;
+	}
 };

@@ -14,6 +14,10 @@ RenderingEngine::RenderingEngine()
 
 RenderingEngine::~RenderingEngine()
 {
+	cout << "destroying device" << endl;
+	device->destroy();
+	delete device;
+
 	cout << "destroying surface" << endl;
 	instance->destroySurfaceKHR(*surface);
 	delete surface;

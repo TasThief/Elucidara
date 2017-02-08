@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
 
-
-
 int main()
 {
 	ThreadPool tp(3);

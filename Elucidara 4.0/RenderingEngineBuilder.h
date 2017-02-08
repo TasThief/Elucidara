@@ -1,26 +1,35 @@
 #pragma once
 #include "timewrap.h"
-#include "ThreadPool.h"
+#include "FamilyInfo.h"
+#include "PhysicalDeviceMap.h"
 
 class RenderingEngine;
+
 
 class RenderingEngineBuilder
 {
 private:
 	RenderingEngine* engine = nullptr;
 
+	map<QueueFlagBits, vector<float>> requestMap;
+
+
 	timewrap<vector<const char*>>	layers		    ;
 	timewrap<Instance>				instance	    ;
 	timewrap<SDL_Window>			window		    ;
 	timewrap<SurfaceKHR>			surface		    ;
 	timewrap<Device>				device		    ;
-	timewrap<PhysicalDevice>		physicalDevice  ;
+	timewrap<PhysicalDeviceMap>		physicalDevice  ;
+
 	
 	void build_window		  ();
 	void build_layers		  ();
 	void build_physicalDevice ();
+	void build_device		  ();
 	void build_instance	      ();
 	void build_surface		  ();
+
+	PhysicalDeviceMap * compare_devices(PhysicalDeviceMap * map1, PhysicalDeviceMap * map2);
 
 public:
 	void build				  ();

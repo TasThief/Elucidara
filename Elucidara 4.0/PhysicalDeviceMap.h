@@ -13,10 +13,10 @@ public:
 
 	FamilyIndex * get_familyIndex(const vk::QueueFlagBits type);
 
-	bool check_fitness(map<vk::QueueFlagBits, FamilyRequest*>* requestMap, function<bool(PhysicalDevice*)> predicate);
+	bool check_fitness(map<vk::QueueFlagBits, vector<float>>& requestMap, function<bool(PhysicalDevice*)> predicate);
 
 	PhysicalDeviceMap();
 
-	~PhysicalDeviceMap();
+	void destroy();
 };
 

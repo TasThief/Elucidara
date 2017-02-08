@@ -12,6 +12,7 @@ public:
 	Device*				 device = nullptr;
 	Queue*				 gQueue = nullptr;
 	CommandPool*		 commandPool = nullptr;
+//	PhysicalDeviceMap*   physicalDevice = nullptr;
 
 	void initialize();
 

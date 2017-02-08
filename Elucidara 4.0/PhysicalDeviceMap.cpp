@@ -32,9 +32,9 @@ FamilyIndex* PhysicalDeviceMap::get_familyIndex(const vk::QueueFlagBits type)
 		throw invalid_argument("indexes can only be one of the 4 available");
 }
 
-bool PhysicalDeviceMap::check_fitness(map <vk::QueueFlagBits, FamilyRequest*>* requestMap, function<bool(PhysicalDevice*)> predicate = nullptr)
+bool PhysicalDeviceMap::check_fitness(map <vk::QueueFlagBits, vector<float>>& requestMap, function<bool(PhysicalDevice*)> predicate = nullptr)
 {
-	for (map <vk::QueueFlagBits, FamilyRequest*>::iterator itr = requestMap->begin(); itr != requestMap->end(); itr++)
+	for (map <vk::QueueFlagBits, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++)
 		if (!get_familyIndex(itr->first)->validate(itr->second))
 			return false;
 
@@ -55,14 +55,17 @@ PhysicalDeviceMap::PhysicalDeviceMap()
 	(*indexMap)[vk::QueueFlagBits::eTransfer] = new FamilyIndex();
 }
 
-PhysicalDeviceMap::~PhysicalDeviceMap()
+void PhysicalDeviceMap::destroy()
 {
-	//for each key in the family map, destroy each one of them;
 	for (map<vk::QueueFlagBits, FamilyIndex*>::iterator itr = indexMap->begin(); itr != indexMap->end(); itr++)
+	{
 		delete itr->second;
+	}
 
 	delete indexMap;
 
 	if (device)
+	{
 		delete device;
+	}
 }
