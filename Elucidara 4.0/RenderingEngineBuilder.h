@@ -25,6 +25,7 @@ public:
 	timewrap<SurfaceKHR>			  surface		  ;
 	timewrap<Device>				  device		  ;
 	timewrap<PhysicalDeviceMap>		  physicalDevice  ;
+	timewrap<SwapchainKHR>			  swapchain;
 
 	void build_window		  ();
 	void build_layers		  ();

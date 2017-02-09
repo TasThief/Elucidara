@@ -6,14 +6,6 @@ class PhysicalDeviceMap
 private:
 	map <QFB, FamilyIndex*>* indexMap;
 
-	FamilyIndex*			 presentQueueIndex;
-
-	SurfaceFormatKHR		 availableFormat;
-
-	PresentModeKHR			 availablePresentMode;
-
-	Extent2D				 availableExtent;
-		
 	int get_availableSurfaceFormat(SurfaceKHR & surface);
 
 	int get_availablePresentationMode(SurfaceKHR & surface);
@@ -21,6 +13,16 @@ private:
 	int get_availableExtent(SurfaceKHR & surface);
 
 public:
+	FamilyIndex*			 presentQueueIndex;
+
+	SurfaceCapabilitiesKHR   capabilities;
+
+	SurfaceFormatKHR		 availableFormat;
+
+	PresentModeKHR			 availablePresentMode;
+
+	Extent2D				 availableExtent;
+
 	void get_swapchainConstraints(SurfaceKHR & surface);
 
 	PhysicalDevice* device;

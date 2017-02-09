@@ -77,7 +77,7 @@ int PhysicalDeviceMap::get_availablePresentationMode(SurfaceKHR& surface)
 
 int PhysicalDeviceMap::get_availableExtent(SurfaceKHR& surface)
 {
-	SurfaceCapabilitiesKHR capabilities = device->getSurfaceCapabilitiesKHR(surface);
+	capabilities = device->getSurfaceCapabilitiesKHR(surface);
 
 	if (capabilities.currentExtent.width != UINT32_MAX)
 	{

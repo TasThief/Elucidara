@@ -35,4 +35,7 @@ RenderingEngine::~RenderingEngine()
 
 	cout << "deleting queue handler map" << endl;
 	delete queueMap;
+
+	cout << "deleting swapchain" << endl;
+	delete swapchain;
 }

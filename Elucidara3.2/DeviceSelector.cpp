@@ -10,7 +10,7 @@ vk::PhysicalDevice* DeviceSelector::get_device()
 // @param family type
 FamilyQueueInfo* DeviceSelector::get_familyInfo(const vk::QueueFlagBits type)
 {
-	if (type == vk::QueueFlagBits::eCompute ||
+	if (type == vk::QueueFlagBits::eCompute  ||
 		type == vk::QueueFlagBits::eGraphics ||
 		type == vk::QueueFlagBits::eTransfer ||
 		type == vk::QueueFlagBits::eSparseBinding)
