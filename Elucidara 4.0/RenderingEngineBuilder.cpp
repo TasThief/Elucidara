@@ -4,7 +4,7 @@
 
 RenderingEngineBuilder::RenderingEngineBuilder(RenderingEngine* engine)
 {
-	this->engine = engine;
+	this->engine.set(engine);
 
 	requestMap[QFB::eGraphics].push_back(1.0f);
 	requestMap[QFB::eGraphics].push_back(1.0f);
@@ -13,13 +13,13 @@ RenderingEngineBuilder::RenderingEngineBuilder(RenderingEngine* engine)
 void RenderingEngineBuilder::build_layers()
 {
 	//initialize the layer's array
-	engine->validationLayers = new vector<const char*>();
+	engine.get()->validationLayers = new vector<const char*>();
 
 	//if in debugmode
 #if defined(_DEBUG)
 
 	//push back the lunarG standard validation layer
-	engine->validationLayers->push_back("VK_LAYER_LUNARG_standard_validation");
+	engine.get()->validationLayers->push_back("VK_LAYER_LUNARG_standard_validation");
 
 	//verify if the layers are suported
 	uint32_t layerCount;
@@ -28,7 +28,7 @@ void RenderingEngineBuilder::build_layers()
 	vector<LayerProperties> availableLayers(layerCount);
 	enumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-	for (const char* layerName : *engine->validationLayers) {
+	for (const char* layerName : *engine.get()->validationLayers) {
 		bool layerFound = false;
 
 		for (const auto& layerProperties : availableLayers)
@@ -45,7 +45,7 @@ void RenderingEngineBuilder::build_layers()
 
 	cout << "validation layers completed" << endl;
 	//save it in the timewrap
-	layers.set(engine->validationLayers);
+	layers.set(engine.get()->validationLayers);
 
 }
 
@@ -56,19 +56,19 @@ void RenderingEngineBuilder::build_window()
 		std::cout << "Could not initialize SDL." << std::endl;
 	}
 
-	engine->window = SDL_CreateWindow(
+	engine.get()->window = SDL_CreateWindow(
 		"Vulkan Window",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		WIDTH, HEIGHT,
 		SDL_WINDOW_OPENGL);
 
-	if (engine->window == NULL) {
+	if (engine.get()->window == NULL) {
 		std::cout << "Could not create SDL window." << std::endl;
 	}
 
 	cout << "window completed" << endl;
-	window.set(engine->window);
+	window.set(engine.get()->window);
 
 }
 
@@ -104,10 +104,10 @@ void RenderingEngineBuilder::build_instance()
 		.setEnabledLayerCount(static_cast<uint32_t>(layers.get()->size()))
 		.setPpEnabledLayerNames(layers.get()->data());
 
-	engine->instance = new Instance(createInstance(instInfo));
+	engine.get()->instance = new Instance(createInstance(instInfo));
 	
 	cout << "instance completed" << endl;
-	instance.set(engine->instance);
+	instance.set(engine.get()->instance);
 }
 
 void RenderingEngineBuilder::build_surface()
@@ -131,7 +131,7 @@ void RenderingEngineBuilder::build_surface()
 		AndroidSurfaceCreateInfoKHR surfaceInfo = AndroidSurfaceCreateInfoKHR()
 			.setWindow(windowInfo.info.android.window);
 
-		engine->surface = new SurfaceKHR(instance.get()->createAndroidSurfaceKHR(surfaceInfo));
+		engine.get()->surface = new SurfaceKHR(instance.get()->createAndroidSurfaceKHR(surfaceInfo));
 	}
 #endif
 
@@ -142,7 +142,7 @@ void RenderingEngineBuilder::build_surface()
 			.setConnection(windowInfo.info.mir.connection)
 			.setMirSurface(windowInfo.info.mir.surface);
 
-		engine->surface = new SurfaceKHR(instance.get()->createMirSurfaceKHR(surfaceInfo));
+		engine.get()->surface = new SurfaceKHR(instance.get()->createMirSurfaceKHR(surfaceInfo));
 	}
 #endif
 
@@ -153,7 +153,7 @@ void RenderingEngineBuilder::build_surface()
 			.setDisplay(windowInfo.info.wl.display)
 			.setSurface(windowInfo.info.wl.surface);
 
-		engine->surface = new SurfaceKHR(instance.get()->createWaylandSurfaceKHR(surfaceInfo));
+		engine.get()->surface = new SurfaceKHR(instance.get()->createWaylandSurfaceKHR(surfaceInfo));
 	}
 #endif
 
@@ -164,7 +164,7 @@ void RenderingEngineBuilder::build_surface()
 			.setHinstance(GetModuleHandle(NULL))
 			.setHwnd(windowInfo.info.win.window);
 
-		engine->surface = new SurfaceKHR(instance.get()->createWin32SurfaceKHR(surfaceInfo));
+		engine.get()->surface = new SurfaceKHR(instance.get()->createWin32SurfaceKHR(surfaceInfo));
 	}
 #endif
 
@@ -175,7 +175,7 @@ void RenderingEngineBuilder::build_surface()
 			.setDpy(windowInfo.info.x11.display)
 			.setWindow(windowInfo.info.x11.window);
 
-		engine->surface = new SurfaceKHR(instance.get()->createXlibSurfaceKHR(surfaceInfo));
+		engine.get()->surface = new SurfaceKHR(instance.get()->createXlibSurfaceKHR(surfaceInfo));
 	}
 #endif
 
@@ -183,7 +183,7 @@ void RenderingEngineBuilder::build_surface()
 		throw system_error(std::error_code(), "Unsupported window manager is in use.");
 
 	cout << "surface completed" << endl;
-	surface.set(engine->surface);
+	surface.set(engine.get()->surface);
 }
 
 void RenderingEngineBuilder::build_physicalDevice()
@@ -279,28 +279,28 @@ void RenderingEngineBuilder::build_device()
 		.setPQueueCreateInfos(familyInfoList.data());
 
 	//save info 
-	engine->device = new Device(physicalDevice.get()->device->createDevice(deviceInfo));
+	engine.get()->device = new Device(physicalDevice.get()->device->createDevice(deviceInfo));
 	
 	//message
 	cout << "logical device created" << endl;
 	
 	//set timewrap
-	device.set(engine->device);
+	device.set(engine.get()->device);
 }
 
 void RenderingEngineBuilder::build_queueHandlers()
 {
 	//create queue handler map
-	engine->queueMap = new map <QFB, vector<Queue>>;
+	engine.get()->queueMap = new map <QFB, vector<Queue>>;
 
 	//use the request map/physical device queue index map to generate a queue handler map
 	for (map<QFB, vector<float>>::iterator itr = requestMap.begin(); itr != requestMap.end(); itr++)
 		for (uint32_t i = 0; i < requestMap[itr->first].size(); i++)
-			(*engine->queueMap)[itr->first].push_back(device.get()->getQueue(physicalDevice.get()->get_familyIndex(itr->first)->index, i));
+			(*engine.get()->queueMap)[itr->first].push_back(device.get()->getQueue(physicalDevice.get()->get_familyIndex(itr->first)->index, i));
 
 	cout << "queue handlers built" << endl;
 	//save the queue handler map into the time wrap
-	queueMap.set(engine->queueMap);
+	queueMap.set(engine.get()->queueMap);
 }
 
 void RenderingEngineBuilder::build_swapchain()
@@ -354,17 +354,17 @@ void RenderingEngineBuilder::build_swapchain()
 			.setPQueueFamilyIndices(nullptr);
 	
 	//create the swapchain, attach it to the engine
-	engine->swapchain = new SwapchainKHR(device.get()->createSwapchainKHR(createInfo));
+	engine.get()->swapchain = new SwapchainKHR(device.get()->createSwapchainKHR(createInfo));
 
 	cout << "swapchain created" << endl;
 
-	swapchain.set(engine->swapchain);
+	swapchain.set(engine.get()->swapchain);
 
 	cout << "images created" << endl;
 
-	engine->images = new vector<Image>(device.get()->getSwapchainImagesKHR(*swapchain.get()));
+	engine.get()->images = new vector<Image>(device.get()->getSwapchainImagesKHR(*swapchain.get()));
 
-	images.set(engine->images);
+	images.set(engine.get()->images);
 }
 
 void RenderingEngineBuilder::build_imageViews()
@@ -385,15 +385,15 @@ void RenderingEngineBuilder::build_imageViews()
 			/*layerCount	*/1))
 		.setFormat(physicalDevice.get()->availableFormat.format);
 
-	engine->imageView = new vector<ImageView>();
+	engine.get()->imageView = new vector<ImageView>();
 	this->layers;
   	int maxImages = images.get()->size();
 	for (int i = 0; i < maxImages; i++) {
 		createInfo.setImage(images.get()->at(i));
-		engine->imageView->push_back(device.get()->createImageView(createInfo));
+		engine.get()->imageView->push_back(device.get()->createImageView(createInfo));
 	}
 
-	imageView.set(engine->imageView);
+	imageView.set(engine.get()->imageView);
 }
 
 PhysicalDeviceMap* RenderingEngineBuilder::compare_devices(PhysicalDeviceMap* map1, PhysicalDeviceMap* map2)

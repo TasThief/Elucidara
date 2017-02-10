@@ -7,7 +7,7 @@ int main()
 {
 
 	RenderingEngine engine;
-	ThreadPool tp(4);
+	ThreadPool tp(6);
 	engine.initialize();
 
 

@@ -13,7 +13,7 @@ public:
 //	const int WIDTH = 1280;
 //	const int HEIGHT = 720;
 
-	RenderingEngine* engine = nullptr;
+	timewrap<RenderingEngine> engine;
 
 	map<QFB, vector<float>> requestMap;
 
