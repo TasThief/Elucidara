@@ -38,7 +38,7 @@ public:
 			unique_lock<mutex> lock(lock);
 
 			//wait til resource is filled with info
-			_flag.wait(lock, [this]() { return _resource; });
+			_flag.wait(lock, [this]() { return _resource != nullptr; });
 		}
 	}
 

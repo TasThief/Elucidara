@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "ThreadPool.h"
 
+
+
 int main()
 {
-	ThreadPool tp(3);
 
 	RenderingEngine engine;
+	ThreadPool tp(4);
 	engine.initialize();
 
 
@@ -30,5 +32,7 @@ int main()
 
 		SDL_Delay(10);
 	}
+
+	engine.destroy();
 	return 0;
 }

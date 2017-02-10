@@ -305,21 +305,9 @@ void RenderingEngineBuilder::build_queueHandlers()
 
 void RenderingEngineBuilder::build_swapchain()
 {
-	vector<PresentModeKHR> presentModes = physicalDevice.get()->device->getSurfacePresentModesKHR(*surface.get());
-
-	PhysicalDeviceMap* physicalMap = physicalDevice.get();
-
-	uint32_t imageCount = physicalMap->capabilities.minImageCount + 1;
-
-	if (physicalMap->capabilities.maxImageCount > 0 &&
-		imageCount > physicalMap->capabilities.maxImageCount)
-		imageCount = physicalMap->capabilities.maxImageCount;
-
-	uint32_t familyIndex[]{
-		(uint32_t)physicalMap->get_familyIndex(QFB::eGraphics)->index,
-		(uint32_t)physicalMap->presentQueueIndex->index };
-
+	//block with the info i need to create the swapchain
 	SwapchainCreateInfoKHR createInfo;
+
 	createInfo
 		//The imageUsage bit field specifies what kind of operations I'll use the images in the swap chain for. 
 		//I'am going to render directly to them, which means that they're used as color attachment. 
@@ -330,9 +318,25 @@ void RenderingEngineBuilder::build_swapchain()
 		.setImageArrayLayers(1)	//unless i am using stereoscopic 3d this should be 1
 		.setClipped(VK_TRUE)//if i want clipped stuff (when i have a window in front of it) not to be calculated
 		.setCompositeAlpha(CompositeAlphaFlagBitsKHR::eOpaque)//if i want to make the image to be blended with the os image behind window
+		.setSurface(*surface.get());
+
+	uint32_t imageCount = 3;
+
+	//request the physical device
+	PhysicalDeviceMap* physicalMap = physicalDevice.get();
+
+	uint32_t familyIndex[]{
+		(uint32_t)physicalMap->get_familyIndex(QFB::eGraphics)->index,
+		(uint32_t)physicalMap->presentQueueIndex->index };
+
+
+	if (physicalMap->capabilities.maxImageCount > 0 &&
+		imageCount > physicalMap->capabilities.maxImageCount)
+		imageCount = physicalMap->capabilities.maxImageCount;
+
+	createInfo
 		.setPreTransform(physicalMap->capabilities.currentTransform)
 		.setMinImageCount(imageCount)
-		.setSurface(*surface.get())
 		.setImageFormat(physicalMap->availableFormat.format)
 		.setImageColorSpace(physicalMap->availableFormat.colorSpace)
 		.setImageExtent(physicalMap->availableExtent)
@@ -355,6 +359,41 @@ void RenderingEngineBuilder::build_swapchain()
 	cout << "swapchain created" << endl;
 
 	swapchain.set(engine->swapchain);
+
+	cout << "images created" << endl;
+
+	engine->images = new vector<Image>(device.get()->getSwapchainImagesKHR(*swapchain.get()));
+
+	images.set(engine->images);
+}
+
+void RenderingEngineBuilder::build_imageViews()
+{
+	ImageViewCreateInfo createInfo;
+	createInfo
+		.setViewType(ImageViewType::e2D)
+		.setComponents(ComponentMapping(
+			ComponentSwizzle::eIdentity,
+			ComponentSwizzle::eIdentity,
+			ComponentSwizzle::eIdentity,
+			ComponentSwizzle::eIdentity))
+		.setSubresourceRange(ImageSubresourceRange(
+			ImageAspectFlagBits::eColor,
+			/*baseMipLevel	*/0,
+			/*levelCount	*/1,
+			/*baseArrayLayer*/0,
+			/*layerCount	*/1))
+		.setFormat(physicalDevice.get()->availableFormat.format);
+
+	engine->imageView = new vector<ImageView>();
+	this->layers;
+  	int maxImages = images.get()->size();
+	for (int i = 0; i < maxImages; i++) {
+		createInfo.setImage(images.get()->at(i));
+		engine->imageView->push_back(device.get()->createImageView(createInfo));
+	}
+
+	imageView.set(engine->imageView);
 }
 
 PhysicalDeviceMap* RenderingEngineBuilder::compare_devices(PhysicalDeviceMap* map1, PhysicalDeviceMap* map2)
@@ -372,11 +411,11 @@ void RenderingEngineBuilder::build()
 	cout << "starting to build: instance" << endl;
 	ThreadPool::add_command([this]() { build_instance(); });
 
-	cout << "starting to build: surface" << endl;
-	ThreadPool::add_command([this]() { build_surface(); });
-
 	cout << "starting to build: physical device map" << endl;
 	ThreadPool::add_command([this]() { build_physicalDevice(); });
+
+	cout << "starting to build: surface" << endl;
+	ThreadPool::add_command([this]() { build_surface(); });
 
 	cout << "starting to build: logical device " << endl;
 	ThreadPool::add_command([this]() { build_device(); });
@@ -387,6 +426,8 @@ void RenderingEngineBuilder::build()
 	cout << "starting to build: swapchain " << endl;
 	ThreadPool::add_command([this]() { build_swapchain(); });
 
+	cout << "starting to build: imageviews " << endl;
+	ThreadPool::add_command([this]() { build_imageViews(); });
 
 	//the window process should be in the main thread
 	cout << "starting to build: window" << endl;
@@ -400,6 +441,7 @@ void RenderingEngineBuilder::build()
 	device.wait();
 	queueMap.wait();
 	swapchain.wait();
+	imageView.wait();
 
 	cout << endl << "building finished" << endl;
 }

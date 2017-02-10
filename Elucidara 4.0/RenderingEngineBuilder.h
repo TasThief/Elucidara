@@ -25,7 +25,9 @@ public:
 	timewrap<SurfaceKHR>			  surface		  ;
 	timewrap<Device>				  device		  ;
 	timewrap<PhysicalDeviceMap>		  physicalDevice  ;
-	timewrap<SwapchainKHR>			  swapchain;
+	timewrap<SwapchainKHR>			  swapchain		  ;
+	timewrap<vector<ImageView>>		  imageView		  ;
+	timewrap<vector<Image>>			  images		  ;
 
 	void build_window		  ();
 	void build_layers		  ();
@@ -33,6 +35,7 @@ public:
 	void build_device		  ();
 	void build_queueHandlers  ();
 	void build_swapchain	  ();
+	void build_imageViews	  ();
 	void build_instance	      ();
 	void build_surface		  ();
 
