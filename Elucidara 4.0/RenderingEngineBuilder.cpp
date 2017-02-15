@@ -186,6 +186,65 @@ void RenderingEngineBuilder::build_surface()
 	surface.set(engine.get()->surface);
 }
 
+void RenderingEngineBuilder::build_depthBuffer()
+{
+	Extent3D extent(physicalDevice.get()->availableExtent.width, physicalDevice.get()->availableExtent.height, 1);
+	
+	ImageCreateInfo imageInfo;
+	imageInfo
+		.setImageType(ImageType::e2D)
+		.setFormat(Format::eD16Unorm)
+		.setExtent(extent)
+		.setArrayLayers(1)
+		.setMipLevels(1)
+	//	.setInitialLayout(ImageLayout::eDepthStencilAttachmentOptimal)
+		.setUsage(ImageUsageFlagBits::eDepthStencilAttachment);
+	
+	engine.get()->depthBuffer = new Image(device.get()->createImage(imageInfo));
+	
+	depthBufferImage.set(engine.get()->depthBuffer);
+	
+	MemoryRequirements imageMR = device.get()->getImageMemoryRequirements(*depthBufferImage.get());
+	
+	MemoryAllocateInfo memAllocInfo;
+	/*memAllocInfo
+		.setAllocationSize(imageMR.size)
+		.setMemoryTypeIndex()
+		*/
+	PhysicalDeviceMemoryProperties memoryProp = physicalDevice.get()->device->getMemoryProperties();
+	cout << "test";
+}
+
+
+//
+//pass = memory_type_from_properties(info, mem_reqs.memoryTypeBits,
+//	0, /* No Requirements */
+//	&mem_alloc.memoryTypeIndex);
+//
+//bool memory_type_from_properties(struct sample_info &info, uint32_t typeBits,
+//	VkFlags requirements_mask,
+//	uint32_t *typeIndex) {
+//	// Search memtypes to find first index with those properties
+//	for (uint32_t i = 0; i < info.memory_properties.memoryTypeCount; i++) {
+//		if ((typeBits & 1) == 1) {
+//			// Type is available, does it match user properties?
+//			if ((info.memory_properties.memoryTypes[i].propertyFlags &
+//				requirements_mask) == requirements_mask) {
+//				*typeIndex = i;
+//				return true;
+//			}
+//		}
+//		typeBits >>= 1;
+//	}
+//	// No memory types matched, return failure
+//	return false;
+//}
+
+
+
+
+
+
 void RenderingEngineBuilder::build_physicalDevice()
 {
 	//collect devices
@@ -372,17 +431,11 @@ void RenderingEngineBuilder::build_imageViews()
 	ImageViewCreateInfo createInfo;
 	createInfo
 		.setViewType(ImageViewType::e2D)
-		.setComponents(ComponentMapping(
-			ComponentSwizzle::eIdentity,
-			ComponentSwizzle::eIdentity,
-			ComponentSwizzle::eIdentity,
-			ComponentSwizzle::eIdentity))
-		.setSubresourceRange(ImageSubresourceRange(
-			ImageAspectFlagBits::eColor,
-			/*baseMipLevel	*/0,
-			/*levelCount	*/1,
-			/*baseArrayLayer*/0,
-			/*layerCount	*/1))
+		.setComponents(ComponentMapping())
+		.setSubresourceRange((ImageSubresourceRange())
+			.setAspectMask(ImageAspectFlagBits::eColor)
+			.setLayerCount(1)
+			.setLevelCount(1))
 		.setFormat(physicalDevice.get()->availableFormat.format);
 
 	engine.get()->imageView = new vector<ImageView>();
@@ -395,6 +448,8 @@ void RenderingEngineBuilder::build_imageViews()
 
 	imageView.set(engine.get()->imageView);
 }
+
+
 
 PhysicalDeviceMap* RenderingEngineBuilder::compare_devices(PhysicalDeviceMap* map1, PhysicalDeviceMap* map2)
 {
@@ -428,6 +483,9 @@ void RenderingEngineBuilder::build()
 
 	cout << "starting to build: imageviews " << endl;
 	ThreadPool::add_command([this]() { build_imageViews(); });
+
+	cout << "starting to build: imageviews " << endl;
+	ThreadPool::add_command([this]() { build_depthBuffer(); });
 
 	//the window process should be in the main thread
 	cout << "starting to build: window" << endl;

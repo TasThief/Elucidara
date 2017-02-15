@@ -16,6 +16,7 @@ public:
 	SwapchainKHR*			 swapchain = nullptr;
 	vector<ImageView>*		 imageView = nullptr;
 	vector<Image>*			 images = nullptr;
+	Image*					 depthBuffer = nullptr;
 
 	void initialize();
 	void debug(string message);

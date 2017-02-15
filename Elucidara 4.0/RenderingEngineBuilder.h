@@ -10,8 +10,6 @@ class RenderingEngineBuilder
 {
 private:
 public:
-//	const int WIDTH = 1280;
-//	const int HEIGHT = 720;
 
 	timewrap<RenderingEngine> engine;
 
@@ -28,6 +26,8 @@ public:
 	timewrap<SwapchainKHR>			  swapchain		  ;
 	timewrap<vector<ImageView>>		  imageView		  ;
 	timewrap<vector<Image>>			  images		  ;
+	timewrap<Image>					  depthBufferImage;
+	timewrap<ImageView>				  depthBufferView ;
 
 	void build_window		  ();
 	void build_layers		  ();
@@ -38,7 +38,7 @@ public:
 	void build_imageViews	  ();
 	void build_instance	      ();
 	void build_surface		  ();
-
+	void build_depthBuffer	  ();
 
 	PhysicalDeviceMap * compare_devices(PhysicalDeviceMap * map1, PhysicalDeviceMap * map2);
 
