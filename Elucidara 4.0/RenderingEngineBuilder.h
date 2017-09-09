@@ -46,6 +46,8 @@ public:
 // 	void build_gQueue		  ();
 // 	void build_commandPool	  ();
 
+	uint32_t find_MemoryType(uint32_t typeFilter, MemoryPropertyFlagBits properties);
+
 	RenderingEngineBuilder(RenderingEngine* engine);
 	~RenderingEngineBuilder();
 };

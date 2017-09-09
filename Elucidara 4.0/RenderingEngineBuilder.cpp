@@ -207,14 +207,28 @@ void RenderingEngineBuilder::build_depthBuffer()
 	MemoryRequirements imageMR = device.get()->getImageMemoryRequirements(*depthBufferImage.get());
 	
 	MemoryAllocateInfo memAllocInfo;
-	/*memAllocInfo
-		.setAllocationSize(imageMR.size)
-		.setMemoryTypeIndex()
-		*/
-	PhysicalDeviceMemoryProperties memoryProp = physicalDevice.get()->device->getMemoryProperties();
+	memAllocInfo
+		.setAllocationSize(imageMR.size);
+		//.setMemoryTypeIndex(find_MemoryType(imageMR.memoryTypeBits,MemoryPropertyFlagBits::))
+	//imageMR.memoryTypeBits
+
+//	PhysicalDeviceMemoryProperties memoryProp = physicalDevice.get()->device->getMemoryProperties();
 	cout << "test";
 }
 
+uint32_t RenderingEngineBuilder::find_MemoryType(uint32_t typeFilter, MemoryPropertyFlagBits properties) {
+
+	PhysicalDeviceMemoryProperties memProperties = physicalDevice.get()->device->getMemoryProperties();
+	
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+		if ((typeFilter & (1 << i)) && 
+			(memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
+}
 
 //
 //pass = memory_type_from_properties(info, mem_reqs.memoryTypeBits,
@@ -484,9 +498,9 @@ void RenderingEngineBuilder::build()
 	cout << "starting to build: imageviews " << endl;
 	ThreadPool::add_command([this]() { build_imageViews(); });
 
-	cout << "starting to build: imageviews " << endl;
+	/*cout << "starting to build: imageviews " << endl;
 	ThreadPool::add_command([this]() { build_depthBuffer(); });
-
+	*/
 	//the window process should be in the main thread
 	cout << "starting to build: window" << endl;
 	build_window();
